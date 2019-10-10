@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-Project(TLCrypto)
+Project(Homenetctl)
 
 #======================================================================
 # Version

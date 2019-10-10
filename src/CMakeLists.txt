@@ -4,7 +4,6 @@ add_compile_options(
     -Wpedantic
     -Werror
     )
-
 file (
     GLOB
     sources
@@ -22,6 +21,4 @@ target_compile_features(homenetctl
     PRIVATE cxx_variadic_templates)
 
 target_include_directories(homenetctl PRIVATE include)
-
-install(PROGRAMS homenetctl
-    DESTINATION ${CMAKE_SOURCE_DIR})
+# install(PROGRAMS homenetctl  DESTINATION ${CMAKE_SOURCE_DIR})

@@ -8,17 +8,36 @@
 #include <string>
 #include <utility>
 #include "RSAKeyPair.h"
+#include "certificate.h"
 
 class equipment {
 
 private:
     std::string id;
     RSAKeyPair keys;
-    //probably will need to link the domestic network to have a link to CA and DA. we'll see how
+    certificate myCertificate;
+    int port;
 
 public:
+
+    //CONSTRUCTORS
     equipment();
-    equipment(std::string id, RSAKeyPair keys);
+    equipment(std::string id, int port);
+
+    //DISPLAY
+    void display_DA();
+    void display_CA();
+    void display(); //calls on the previous 2
+
+    //GETTERS
+    std::string getName();
+    RSAKeyPair getKeys();
+    int getPort();
+
+    //SETTERS
+    void setName();
+    void setKeys();
+    void setPort();
 
 };
 

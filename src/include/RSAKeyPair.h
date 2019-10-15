@@ -11,11 +11,20 @@ class RSAKeyPair {
 private:
     //1 pair field or 2 fields, one for public one for private.
     //types to define according to crypto API chosen
+    int publicKey;
+    int privateKey;
 
 public:
     //default constructor should simply generate keys and assign them to the fields
     RSAKeyPair();
-    //we might need a function
+
+    //GETTERS
+    int getpublicKey();
+    int getPrivateKey();
+
+    //SETTERS
+    void setPublicKey(int newPublicKey);
+    void setPrivateKey(int newPrivateKey);
 
 };
 

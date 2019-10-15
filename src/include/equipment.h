@@ -35,9 +35,9 @@ public:
     int getPort();
 
     //SETTERS
-    void setName();
-    void setKeys();
-    void setPort();
+    void setName(std::string newId);
+    void setKeys(RSAKeyPair newKeys);
+    void setPort(int newPort);
 
 };
 

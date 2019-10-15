@@ -14,16 +14,16 @@ equipment::equipment(std::string id, int port)
 }
 
 //DISPLAY
-void equipment::display_CA() {};
-void equipment::display_DA() {};
-void equipment::display() {};
+void equipment::display_CA() {}
+void equipment::display_DA() {}
+void equipment::display() {}
 
 //GETTERS
-std::string equipment::getName() {};
-RSAKeyPair equipment::getKeys() {};
-int equipment::getPort() {};
+std::string equipment::getName() {return this->id;}
+RSAKeyPair equipment::getKeys() {return this->keys;}
+int equipment::getPort() {return this->port;}
 
 //SETTERS
-void equipment::setName() {};
-void equipment::setKeys() {};
-void equipment::setPort() {};
+void equipment::setName(std::string newId) {this->id=newId;}
+void equipment::setKeys(RSAKeyPair newKeys) {this->keys=newKeys;}
+void equipment::setPort(int newPort) {this->port=newPort;}

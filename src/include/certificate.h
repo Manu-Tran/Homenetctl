@@ -9,13 +9,14 @@
 class certificate {
 
 private:
-    //the hash of the certificate
-    //the signature ?
+    long int seqnum = 0;
+    int certificate; //to be changed for the right type
 
 public:
 
     certificate();
     void generateCertificate(); //should return a certif afterwards
+    bool checkCertfification(int publicKey);
 
 };
 

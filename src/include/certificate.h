@@ -8,6 +8,15 @@
 
 class certificate {
 
+private:
+    //the hash of the certificate
+    //the signature ?
+
+public:
+
+    certificate();
+    void generateCertificate(); //should return a certif afterwards
+
 };
 
 

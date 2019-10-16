@@ -13,10 +13,10 @@
 class equipment {
 
 private:
-    std::string id;
-    RSAKeyPair keys;
-    certificate myCertificate;
-    int port;
+    std::string mId;
+    RSAKeyPair mKeys;
+    certificate mCertificate;
+    int mPort;
 
 public:
 

@@ -13,4 +13,4 @@ void certificate::generateCertificate()
 bool certificate::checkCertfification(int publicKey)
 {
     //check signature using parameter key
-}
+};

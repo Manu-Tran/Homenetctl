@@ -9,8 +9,8 @@
 class certificate {
 
 private:
-    long int seqnum = 0;
-    int certificate; //to be changed for the right type
+    long int mSeqnum = 0;
+    int mCertificate; //to be changed for the right type
 
 public:
 

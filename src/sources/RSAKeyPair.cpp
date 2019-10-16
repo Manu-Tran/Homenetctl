@@ -10,9 +10,9 @@ RSAKeyPair::RSAKeyPair()
 };
 
 //GETTERS
-int RSAKeyPair::getpublicKey() {return this->publicKey;}
-int RSAKeyPair::getPrivateKey() {return this->privateKey;}
+int RSAKeyPair::getpublicKey() {return this->mPublicKey;}
+int RSAKeyPair::getPrivateKey() {return this->mPrivateKey;}
 
 //SETTERS
-void RSAKeyPair::setPublicKey(int newPublicKey) {this->publicKey=newPublicKey;}
-void RSAKeyPair::setPrivateKey(int newPrivateKey) {this->privateKey=newPrivateKey;}
+void RSAKeyPair::setPublicKey(int newPublicKey) {this->mPublicKey=newPublicKey;}
+void RSAKeyPair::setPrivateKey(int newPrivateKey) {this->mPrivateKey=newPrivateKey;}

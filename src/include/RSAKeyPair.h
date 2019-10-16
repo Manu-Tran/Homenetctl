@@ -5,26 +5,29 @@
 #ifndef HOMENETCTL_RSAKEYPAIR_H
 #define HOMENETCTL_RSAKEYPAIR_H
 
+#include <iostream>
+#include <exception>
+#include <openssl/err.h>
+#include "openssl/pem.h"
+#include "openssl/evp.h"
+#include "openssl/x509.h"
+
 
 class RSAKeyPair {
 
 private:
-    //1 pair field or 2 fields, one for public one for private.
-    //types to define according to crypto API chosen
-    int mPublicKey;
-    int mPrivateKey;
+    char * publicKey;
+    char * privateKey;
+    bool generate_key();
 
 public:
     //default constructor should simply generate keys and assign them to the fields
     RSAKeyPair();
 
     //GETTERS
-    int getpublicKey();
-    int getPrivateKey();
+    char * getPublicKey();
+    char * getPrivateKey();
 
-    //SETTERS
-    void setPublicKey(int newPublicKey);
-    void setPrivateKey(int newPrivateKey);
 
 };
 

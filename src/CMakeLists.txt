@@ -13,15 +13,16 @@ file (
     GLOB
     headers
     include/*.hpp
+    include/*.h
     )
 
-# Our only dependency is OpenSSL
-find_package(OpenSSL REQUIRED)
-include_directories(${OPENSSL_INCLUDE_DIR})
+# Our only dependency is POCO
+# find_library(Poco_LIBRARIES NAMES PocoFoundationmt PocoNetmt PATH_SUFFIXES ${POCO_DIR}/lib)
+find_package(Poco REQUIRED Foundation Net Crypto NetSSL)
 
 add_executable(homenetctl ${sources})
 
-target_link_libraries(homenetctl ${OPENSSL_LIBRARIES})
+target_link_libraries(homenetctl PUBLIC Poco::NetSSL Poco::Foundation Poco::Crypto Poco::Net)
 
 target_compile_features(homenetctl
     PRIVATE cxx_variadic_templates)

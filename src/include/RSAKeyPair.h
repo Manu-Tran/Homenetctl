@@ -11,13 +11,21 @@
 #include "openssl/pem.h"
 #include "openssl/evp.h"
 #include "openssl/x509.h"
+#include <openssl/bio.h>
+#include <fstream>
+#include <cstring>
+#include "Poco/Crypto/RSAKey.h"
+
+#define MAX_PATH 200
 
 
 class RSAKeyPair {
 
 private:
-    char * publicKey;
-    char * privateKey;
+    const char * publicKey;
+    const char * privateKey;
+    EVP_PKEY* pkey;
+    EVP_PKEY* pbkey;
     bool generate_key();
 
 public:
@@ -25,8 +33,8 @@ public:
     RSAKeyPair();
 
     //GETTERS
-    char * getPublicKey();
-    char * getPrivateKey();
+    const char * getPublicKey();
+    const char * getPrivateKey();
 
 
 };

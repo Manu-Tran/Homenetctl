@@ -36,10 +36,27 @@ Certificate::Certificate(char *nom, EVP_PKEY *pubKey, int validityDays){
         std::cerr << "Error signing certificate." << std::endl;
         X509_free(x509);
     }
+    mCertificate = x509;
 }
 
-bool Certificate::checkCertfification(EVP_PKEY * publicKey)
+bool Certificate::checkCertificate(X509 * clientCert)
 {
-    return false;
-    //check signature using parameter key
-};
+    int status;
+    X509_STORE_CTX *ctx;
+    ctx = X509_STORE_CTX_new();
+    X509_STORE *store = X509_STORE_new();
+
+    X509_STORE_add_cert(store, clientCert);
+
+    X509_STORE_CTX_init(ctx, store, mCertificate, NULL);
+
+    status = X509_verify_cert(ctx);
+    if(status == 1)
+    {
+        printf("Certificate verified ok\n");
+    }else
+    {
+        printf("Certificate NOT verified\n");
+        /* printf("%s\n", X509_verify_cert_error_string(ct)); */
+    }
+}

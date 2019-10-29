@@ -10,7 +10,12 @@
  */
 RSAKeyPair::RSAKeyPair()
 {
-    generate_key();
+    bool result = generate_key();
+    if(!result) {
+        std::cerr << "error during the key generation! " << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+
 }
 
 /**
@@ -81,10 +86,14 @@ bool RSAKeyPair::generate_key() {
         //public key
         BIO_write(bo, publicKey, strlen(publicKey));
         PEM_read_bio_PUBKEY(bo, &pbkey, 0, 0);
+
+        return true;
     }
+
     catch(std::exception const& e)
     {
         std::cerr << "error : " << e.what() << std::endl;
+        return false;
     }
 
 

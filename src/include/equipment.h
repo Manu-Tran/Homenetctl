@@ -8,21 +8,20 @@
 #include <string>
 #include <utility>
 #include "RSAKeyPair.h"
-#include "certificate.h"
 
-class equipment {
+class Equipment {
 
 private:
     std::string mId;
     RSAKeyPair mKeys;
-    certificate mCertificate;
+    /* Certificate mCertificate; */
     int mPort;
 
 public:
 
     //CONSTRUCTORS
-    equipment();
-    equipment(std::string id, int port);
+    Equipment();
+    Equipment(std::string id, int port);
 
     //DISPLAY
     void display_DA();

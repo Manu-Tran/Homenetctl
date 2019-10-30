@@ -22,12 +22,23 @@ RSAKeyPair::RSAKeyPair()
  * getter for public key
  * @return
  */
-const char * RSAKeyPair::getPublicKey() {return publicKey;}
+const char * RSAKeyPair::getPublicKeyStr() {return mPublicKey;}
 /**
  * getter for private key
  * @return
  */
-const char * RSAKeyPair::getPrivateKey() {return privateKey;}
+const char * RSAKeyPair::getPrivateKeyStr() {return mPrivateKey;}
+
+/**
+ * getter for public key
+ * @return
+ */
+EVP_PKEY *  RSAKeyPair::getPublicKey() {return pbkey;}
+/**
+ * getter for private key
+ * @return
+ */
+EVP_PKEY * RSAKeyPair::getPrivateKey() {return pkey;}
 
 
 
@@ -68,8 +79,8 @@ bool RSAKeyPair::generate_key() {
         std::cout << "could not open private key file" << std::endl;
 
     //convert strings to const char *
-    publicKey = pubKey.c_str();
-    privateKey = priKey.c_str();
+    mPublicKey = pubKey.c_str();
+    mPrivateKey = priKey.c_str();
 
     //Now we need these two keys in EVP_PKEY types
     //so, we'll first go from a const char* to a BIO* (BIO_write())
@@ -80,11 +91,11 @@ bool RSAKeyPair::generate_key() {
 
     try {
         //private key
-        BIO_write(bo, privateKey, strlen(privateKey));
+        BIO_write(bo, mPrivateKey, strlen(mPrivateKey));
         PEM_read_bio_PrivateKey(bo, &pkey, 0, 0);
 
         //public key
-        BIO_write(bo, publicKey, strlen(publicKey));
+        BIO_write(bo, mPublicKey, strlen(mPublicKey));
         PEM_read_bio_PUBKEY(bo, &pbkey, 0, 0);
 
         return true;

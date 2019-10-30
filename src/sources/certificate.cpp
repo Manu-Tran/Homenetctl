@@ -3,14 +3,16 @@
 //
 
 #include "certificate.h"
-
+#include <memory>
 
 /// Generate a new certificate
 /// @param name
 /// @param pubkey
 /// @param validityDate
 /// @return a new certificate
-Certificate::Certificate(char *nom, EVP_PKEY *pubKey, int validityDays){
+Certificate::Certificate(char *nom, EVP_PKEY *pubKey, int validityDays)
+: mCertificate(X509_new())
+{
     X509 *x509 = X509_new();
     if(!x509) {
         std::cerr << "Unable to create X509 structure." << std::endl;
@@ -35,28 +37,46 @@ Certificate::Certificate(char *nom, EVP_PKEY *pubKey, int validityDays){
     {
         std::cerr << "Error signing certificate." << std::endl;
         X509_free(x509);
+        X509_NAME_free(name);
     }
-    mCertificate = x509;
+    mCertificate = Poco::Crypto::X509Certificate(x509);
 }
 
-bool Certificate::checkCertificate(X509 * clientCert)
+/* Check whether the client certificate has been signed by our
+ * @param Client certificate
+ * @return result of the verification
+ */
+bool Certificate::checkCertificate(Poco::Crypto::X509Certificate clientCert)
 {
     int status;
+    X509 * x509ClientCert = clientCert.dup();
+    X509 * x509Cert = mCertificate.dup();
     X509_STORE_CTX *ctx;
+
     ctx = X509_STORE_CTX_new();
     X509_STORE *store = X509_STORE_new();
 
-    X509_STORE_add_cert(store, clientCert);
+    // Adding certificate to the chain in order to prepare for the verification
+    X509_STORE_add_cert(store, x509ClientCert);
+    X509_STORE_CTX_init(ctx, store, x509Cert, NULL);
 
-    X509_STORE_CTX_init(ctx, store, mCertificate, NULL);
-
+    // The actual verification
     status = X509_verify_cert(ctx);
+
+    // Because OpenSSL is a "C++" library
+    X509_free(x509Cert);
+    X509_free(x509ClientCert);
+    X509_STORE_CTX_free(ctx);
+    X509_STORE_free(store);
+
     if(status == 1)
     {
         printf("Certificate verified ok\n");
-    }else
+        return true;
+    } else
     {
         printf("Certificate NOT verified\n");
         /* printf("%s\n", X509_verify_cert_error_string(ct)); */
+        return false;
     }
 }

@@ -16,28 +16,33 @@
 #include <cstring>
 #include <memory>
 #include "Poco/Crypto/RSAKey.h"
+#include <filesystem>
+#include <memory>
 
 #define MAX_PATH 200
 
 
 class RSAKeyPair {
 
+
 private:
-    const char * mPublicKey;
-    const char * mPrivateKey;
-    EVP_PKEY * pkey;
-    EVP_PKEY * pbkey;
     bool generate_key();
+    /* Poco::Crypto::RSAKey loadKeys(bool priv); */
+    std::filesystem::path mPath = "/tmp/homenetctl";
+    std::filesystem::path mPubKeyPath = mPath / (std::filesystem::path) "publicKey.pem";
+    std::filesystem::path mPrivKeyPath = mPath / (std::filesystem::path) "privateKey.pem";
 
 public:
+    using Key_ptr = std::unique_ptr<Poco::Crypto::RSAKey>;
     //default constructor should simply generate keys and assign them to the fields
     RSAKeyPair();
+    std::unique_ptr<Poco::Crypto::RSAKey> loadKeys(bool priv);
 
     //GETTERS
-    const char * getPublicKeyStr();
-    const char * getPrivateKeyStr();
-    EVP_PKEY * getPublicKey();
-    EVP_PKEY * getPrivateKey();
+    /* const std::string getPublicKeyPath(); */
+    /* const std::string getPrivateKeyPath(); */
+    /* EVP_PKEY * getPublicKey(); */
+    /* EVP_PKEY * getPrivateKey(); */
 
 
 };

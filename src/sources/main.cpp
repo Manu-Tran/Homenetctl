@@ -2,9 +2,11 @@
 #include <string>
 #include <vector>
 #include "certificate.h"
+#include "RSAKeyPair.h"
 
 #include <openssl/pem.h>
 #include <openssl/x509.h>
+#include <Poco/Crypto/EVPPKey.h>
 
 /* Generates a 2048-bit RSA key. */
 EVP_PKEY * generate_key()
@@ -75,10 +77,16 @@ int main(int argc, char* argv[])
         }
     }
     if (test) {
+        Poco::Crypto::EVPPKey key = Poco::Crypto::EVPPKey("", "/tmp/homenetctl/swag");
+        Poco::Crypto::EVPPKey key2 = Poco::Crypto::EVPPKey("/tmp/homenetctl/swag.pub", "/tmp/homenetctl/swag");
+        key.save("/tmp/homenetctl/lol.pub", "/tmp/homenetctl/lol");
+        /* RSAKeyPair key = RSAKeyPair(); */
         std::cout <<"Test Launched ! ";
         char nom[10] = "as";
-        Certificate testCert(nom, generate_key(), 10);
-        X509* certificate = testCert.mCertificate;
+        char nom2[10] = "fuck";
+        /* std::cout << "test " << key.getPublicKeyStr() << std::endl; */
+        Certificate testCert(nom, key, 10);
+        X509* certificate = testCert.mCertificate.dup();
         int status;
         X509_STORE_CTX *ctx;
         ctx = X509_STORE_CTX_new();
@@ -96,9 +104,10 @@ int main(int argc, char* argv[])
         {
             std::cout << ("Autosigned Certificate : Nop");
         }
-        Certificate testCert2(nom, generate_key(), 10);
+        Certificate testCert2(nom, key2, 10);
+        /* Certificate testCert2(nom, key.getPublicKey(), 10); */
 
-        testCert2.checkCertificate(certificate);
+        testCert2.checkCertificate(testCert.mCertificate);
     }
 
 

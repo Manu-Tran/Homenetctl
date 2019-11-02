@@ -14,6 +14,7 @@
 #include <openssl/bio.h>
 #include <fstream>
 #include <cstring>
+#include <memory>
 #include "Poco/Crypto/RSAKey.h"
 
 #define MAX_PATH 200
@@ -22,10 +23,10 @@
 class RSAKeyPair {
 
 private:
-    const char * publicKey;
-    const char * privateKey;
-    EVP_PKEY* pkey;
-    EVP_PKEY* pbkey;
+    const char * mPublicKey;
+    const char * mPrivateKey;
+    EVP_PKEY * pkey;
+    EVP_PKEY * pbkey;
     bool generate_key();
 
 public:
@@ -33,8 +34,10 @@ public:
     RSAKeyPair();
 
     //GETTERS
-    const char * getPublicKey();
-    const char * getPrivateKey();
+    const char * getPublicKeyStr();
+    const char * getPrivateKeyStr();
+    EVP_PKEY * getPublicKey();
+    EVP_PKEY * getPrivateKey();
 
 
 };

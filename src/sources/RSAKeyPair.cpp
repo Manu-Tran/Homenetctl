@@ -63,28 +63,31 @@ bool RSAKeyPair::generate_key(std::string keyname) {
     privateKeyName += ".pem";
 
     //Save said key into 2 PEM files, one for public key one for private key
-    pocoKey.save((std::string)mPath + publicKeyName,(std::string)mPath + privateKeyName,"");
+    pocoKey.save(mPath / publicKeyName,mPath / privateKeyName,"");
 
     //Load the public and private keys from their files into the classes's fields
     std::ifstream pub, priv;
     std::string line, pubKey, priKey;
 
-    pub.open((std::string)mPath+publicKeyName);
-    priv.open((std::string)mPath+privateKeyName);
+    pub.open(mPath / publicKeyName);
+    priv.open(mPath / privateKeyName);
 
     if (pub) {
         while (std::getline(pub, line)) {
             pubKey+=line;
         }
-    } else
+    } else {
         std::cout << "could not open public key file" << std::endl;
-
+        return false;
+    }
     if (priv) {
         while (std::getline(priv, line)) {
             priKey+=line;
         }
+        return true;
     } else
         std::cout << "could not open private key file" << std::endl;
+        return false;
 }
 
 

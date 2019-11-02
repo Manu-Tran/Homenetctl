@@ -26,13 +26,13 @@ class RSAKeyPair {
 
 
 private:
-    bool generate_key(std::string keyname = "");
     /* Poco::Crypto::RSAKey loadKeys(bool priv); */
     std::filesystem::path mPath = "/tmp/homenetctl";
     std::filesystem::path mPubKeyPath = mPath / (std::filesystem::path) "publicKey.pem";
     std::filesystem::path mPrivKeyPath = mPath / (std::filesystem::path) "privateKey.pem";
 
 public:
+    bool generate_key(std::string keyname = "");
     using Key_ptr = std::unique_ptr<Poco::Crypto::RSAKey>;
     //default constructor should simply generate keys and assign them to the fields
     RSAKeyPair();

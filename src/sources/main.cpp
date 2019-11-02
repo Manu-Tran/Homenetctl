@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
     }
     if (test) {
        std::cout << "Launching Tests :" << std::endl;
-       launchTests();
+       TestHandler::launchTests();
     }
     return 0;
 }

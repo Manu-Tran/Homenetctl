@@ -65,44 +65,31 @@ CertificateHandler::X509Ptr CertificateHandler::selfSign(std::string name, EVP_P
  * @param Client certificate
  * @return result of the verification
  */
-bool CertificateHandler::checkCertificateChain( Poco::Crypto::X509Certificate::List certChain, Poco::Crypto::X509Certificate userCert)
+bool CertificateHandler::checkCertificateChain( Poco::Crypto::X509Certificate::List certChain, Poco::Crypto::X509Certificate selfSignedCert)
 {
-    int status;
-
-    X509_STORE_CTX *ctx;
-    X509_STORE *store = X509_STORE_new();
+    bool status = true;
 
     //Adding the entire list to the store
-    for (auto itr(certChain.begin()); itr != certChain.end(); itr++){
-        X509_STORE_add_cert(store, itr->dup());
+    Poco::Crypto::X509Certificate::List::iterator itr;
+    /* int i(0); */
+    for (itr = certChain.begin(); (itr+1) != certChain.end(); itr++){
+        if (!itr->issuedBy(*(itr+1))){
+            status = false;
+            /* std::cout << i; */
+        }
+        /* i++; */
     }
-    X509 * x509Cert = userCert.dup();
-
-    ctx = X509_STORE_CTX_new();
-
-    // Adding certificate to the chain in order to prepare for the verification
-    X509_STORE_CTX_init(ctx, store, x509Cert, NULL);
-
-    // The actual verification
-    status = X509_verify_cert(ctx);
-
-    // Because OpenSSL is a "C++" library
-    X509_free(x509Cert);
-    X509_STORE_CTX_free(ctx);
-    X509_STORE_free(store);
-
-    if(status == 1)
-    {
-        std::cout << ("Certificate verified ! ");
-        return true;
-    } else
-    {
-        std::cout << ("Certificate NOT verified ! ");
-        return false;
-    }
+    status = status and itr->issuedBy(selfSignedCert);
+    return status;
 }
-bool checkCertificate( Poco::Crypto::X509Certificate clientCert, Poco::Crypto::X509Certificate userCert)
+
+
+/* Check whether the client certificate has been signed by our
+ * @param Client certificate
+ * @return result of the verification
+ */
+bool CertificateHandler::checkCertificate( Poco::Crypto::X509Certificate clientCert, Poco::Crypto::X509Certificate selfSignedCert)
 {
-    return CertificateHandler::checkCertificateChain(Poco::Crypto::X509Certificate::List(1,clientCert), userCert);
+    return clientCert.issuedBy(selfSignedCert);
 }
 

@@ -11,10 +11,11 @@
 #include <netinet/in.h>
 #include <string>
 #include "certificate.h"
+#include "Socket.h"
 
 #define PORT 1234
 
-class Server {
+class Server : public Socket{
 
 private:
 
@@ -25,7 +26,6 @@ public:
 
     Server();
     bool listenForConnectionRequests();
-    bool sendCert(Certificate cert);
 
 };
 

@@ -55,9 +55,3 @@ bool Server::listenForConnectionRequests()
         return true;
 
 }
-
-bool Server::sendCert(Certificate cert)
-{
-    std::string buffer;
-
-}

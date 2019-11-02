@@ -16,14 +16,16 @@ private:
 
     int mSocket = 0;
     struct sockaddr_in mServerAddress;
+    int init(const char * serverAddress);
 
 public:
 
-    Client();
+    Client(const char * serverAddress);
 
     //has to be called inside the connect function to get the right IP address and port for the server
     sockaddr_in getServerAddress();
-    bool connect();
+
+    bool connectToServer();
 
 };
 

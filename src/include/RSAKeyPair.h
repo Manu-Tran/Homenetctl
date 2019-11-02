@@ -26,7 +26,7 @@ class RSAKeyPair {
 
 
 private:
-    bool generate_key();
+    bool generate_key(std::string keyname = "");
     /* Poco::Crypto::RSAKey loadKeys(bool priv); */
     std::filesystem::path mPath = "/tmp/homenetctl";
     std::filesystem::path mPubKeyPath = mPath / (std::filesystem::path) "publicKey.pem";

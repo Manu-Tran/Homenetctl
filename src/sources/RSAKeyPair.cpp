@@ -49,20 +49,28 @@ std::unique_ptr<Poco::Crypto::RSAKey> RSAKeyPair::loadKeys(bool priv){
  * This function is called by the class constructor
  * @return
  */
-bool RSAKeyPair::generate_key() {
+bool RSAKeyPair::generate_key(std::string keyname) {
 
     //Generate key using Poco::Crypto::RSAKey constructor
     Poco::Crypto::RSAKey pocoKey = Poco::Crypto::RSAKey(Poco::Crypto::RSAKey::KL_2048,Poco::Crypto::RSAKey::EXP_SMALL);
+    std::string publicKeyName = "publicKey";
+    std::string privateKeyName = "privateKey";
+    if (keyname != ""){
+        publicKeyName  += "_" + keyname;
+        privateKeyName += "_" + keyname;
+    }
+    publicKeyName  += ".pem";
+    privateKeyName += ".pem";
 
     //Save said key into 2 PEM files, one for public key one for private key
-    pocoKey.save("/tmp/homenetctl/publicKey.pem","/tmp/homenetctl/privateKey.pem","");
+    pocoKey.save((std::string)mPath + publicKeyName,(std::string)mPath + privateKeyName,"");
 
     //Load the public and private keys from their files into the classes's fields
     std::ifstream pub, priv;
     std::string line, pubKey, priKey;
 
-    pub.open("/tmp/homenetctl/publicKey.pem");
-    priv.open("/tmp/homenetctl/privateKey.pem");
+    pub.open((std::string)mPath+publicKeyName);
+    priv.open((std::string)mPath+privateKeyName);
 
     if (pub) {
         while (std::getline(pub, line)) {

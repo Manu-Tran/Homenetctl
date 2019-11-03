@@ -6,15 +6,18 @@
 #define HOMENETCTL_EQUIPMENT_H
 
 #include <string>
+#include <cstring>
 #include <utility>
 #include "RSAKeyPair.h"
+#include <memory>
+#include "certificateHandler.h"
 
 class Equipment {
 
 private:
     std::string mId;
     RSAKeyPair mKeys;
-    /* Certificate mCertificate; */
+    CertificateHandler::X509Ptr mSelfSignedCertificate;
     int mPort;
 
 public:

@@ -6,6 +6,8 @@
 #define HOMENETCTL_CLIENT_H
 
 #include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include "Socket.h"
 
 #define PORT 1234
@@ -15,7 +17,6 @@ class Client : public Socket {
 private:
 
     int mSocket = 0;
-    struct sockaddr_in mServerAddress;
     int init(const char * serverAddress);
 
 public:

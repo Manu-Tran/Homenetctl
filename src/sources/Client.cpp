@@ -2,7 +2,7 @@
 // Created by romain on 02/11/2019.
 //
 
-#include <arpa/inet.h>
+
 #include "Client.h"
 
 int Client::init(const char * serverAddress)

@@ -10,7 +10,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string>
-#include "certificate.h"
+
 #include "Socket.h"
 
 #define PORT 1234
@@ -19,8 +19,7 @@ class Server : public Socket{
 
 private:
 
-    int mServer_fd, mNew_socket;
-    struct sockaddr_in mAddress;
+    int  mNew_socket;
 
 public:
 

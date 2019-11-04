@@ -5,16 +5,29 @@
 #ifndef HOMENETCTL_SOCKET_H
 #define HOMENETCTL_SOCKET_H
 
-#include "certificate.h"
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <cstring>
+#include <string>
 
 class Socket {
+
+protected:
+
+    int mSocket = 0;
+    struct sockaddr_in mServerAddress;
 
 public:
 
     Socket();
 
-    bool sendCert(Certificate cert);
-    bool recvCert();
+    std::string readFile(std::string path);
+    bool sendFile(std::string path);
+    bool receiveFile(std::string path);
 
 };
 

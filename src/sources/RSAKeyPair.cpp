@@ -90,7 +90,6 @@ bool RSAKeyPair::generate_key(std::string keyname) {
         return false;
 }
 
-
 /**
  * getter for public key
  * @return
@@ -113,9 +112,3 @@ bool RSAKeyPair::generate_key(std::string keyname) {
  */
 /* EVP_PKEY * RSAKeyPair::getPrivateKey() {return pkey;} */
 
-
-bool is_file_exist(const char *fileName)
-{
-    std::ifstream infile(fileName);
-    return infile.good();
-}

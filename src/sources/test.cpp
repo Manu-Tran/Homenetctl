@@ -39,14 +39,11 @@
 /*     return (!testCert2.checkCertificate(testCert.mCertificate)); */
 /* } */
 
-/* bool TestHandler::test3(){ */
-/*     Poco::Crypto::RSAKey * key = new Poco::Crypto::RSAKey("", "/tmp/homenetctl/test2"); */
-/*     Poco::Crypto::EVPPKey kkey(key); */
-/*     char nom[10] = "name"; */
-/*     Certificate testCert(nom, kkey, 10); */
-/*     Certificate testCert2(nom,kkey, 10); */
-/*     return (testCert2.checkCertificate(testCert.mCertificate)); */
-/* } */
+bool TestHandler::test3(){
+    Poco::Crypto::EVPPKey key = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_1.pem", "/tmp/homenetctl/privateKey_1.pem");
+    std::string nom = "name";
+    return CertificateHandler::checkCertificate(*CertificateHandler::selfSign(nom, key, 30), *CertificateHandler::selfSign(nom,key,30));
+}
 
 bool TestHandler::test4(){
     RSAKeyPair a;
@@ -84,10 +81,36 @@ bool TestHandler::test4(){
 }
 
 bool TestHandler::test5(){
-    Poco::Crypto::EVPPKey keyclient = Poco::Crypto::EVPPKey("/tmp/homenetctl/test.pub", "/tmp/homenetctl/test");
-    char nom1[10] = "name1";
-    char nom2[10] = "name2";
-    char nom3[10] = "name3";
-    char nom4[10] = "name4";
-    return true;
+
+    RSAKeyPair a;
+    a.generate_key("1");
+    a.generate_key("2");
+    a.generate_key("3");
+    a.generate_key("4");
+
+    Poco::Crypto::EVPPKey keyClient = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey.pem", "/tmp/homenetctl/privateKey.pem");
+    Poco::Crypto::EVPPKey key1 = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_1.pem", "/tmp/homenetctl/privateKey_1.pem");
+    Poco::Crypto::EVPPKey key2 = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_2.pem", "/tmp/homenetctl/privateKey_2.pem");
+    Poco::Crypto::EVPPKey key3 = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_3.pem", "/tmp/homenetctl/privateKey_3.pem");
+    Poco::Crypto::EVPPKey keyServer = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_1.pem", "/tmp/homenetctl/privateKey_4.pem");
+
+    std::string nom = "name";
+    std::string nom1 = "name1";
+    std::string nom2 = "name2";
+    std::string nom3 = "name3";
+    std::string nomServ = "nameServ";
+
+    auto cert1 = CertificateHandler::sign(nom1, key1,nom, keyClient,10);
+    auto cert2 = CertificateHandler::sign(nom2, key2, nom1, key1, 10);
+    auto cert3 = CertificateHandler::sign(nom3, key3, nom2, key2, 10);
+    auto cert4 = CertificateHandler::sign(nomServ, keyServer, nom3, key3,10);
+
+    auto selfsigncert = CertificateHandler::selfSign(nomServ, keyServer,10);
+
+    CertificateHandler handler(keyServer, nomServ);
+    handler.addCertificate(cert4, keyServer);
+    handler.addCertificate(cert3, key3);
+    handler.addCertificate(cert2, key2);
+    handler.addCertificate(cert1, key1);
+    return CertificateHandler::checkCertificateChain(handler.findChainCert(cert1), *selfsigncert);
 }

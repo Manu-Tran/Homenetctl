@@ -12,26 +12,85 @@ CertificateHandler::CertificateHandler(EVP_PKEY * privKey, std::string name, std
 {
     CertificateHandler::X509Ptr selfSignedX509;
     if (fs::exists(certDirPath / (fs::path)selfSignedCertName)){
+        std::cout << "Loading certificate..." << std::endl;
         selfSignedX509 = std::make_shared<Poco::Crypto::X509Certificate>(certDirPath / (fs::path)selfSignedCertName);
     } else {
+        std::cout << "Generating certificate..." << std::endl;
         selfSignedX509 = CertificateHandler::selfSign(name, privKey, 30);
     }
 
     bool abort = false;
-    if (selfSignedX509->issuerName() != name){
+    if (selfSignedX509->issuerName() != ("/CN="+name)){
         abort = true;
-        std::cout << "ERROR : The given name does not match the one on the self signed certificate";
+        std::cout << "ERROR : The given name does not match the one on the self signed certificate" << std::endl;
     }
 
-    if (CertificateHandler::checkCertificate(*CertificateHandler::selfSign(name, privKey, 30), *selfSignedX509)){
+    if (!CertificateHandler::checkCertificate(*CertificateHandler::selfSign(name, privKey, 30), *selfSignedX509)){
         abort = true;
-        std::cout << "ERROR : The given private key does not match the public key on the self signed certificate";
+        std::cout << "ERROR : The given private key does not match the public key on the self signed certificate" << std::endl;
     }
 
     if (abort){
         std::exit(EXIT_FAILURE);
     }
-    /* mX509Searcher[DevId(name,  )] */
+    mSelfSignedCert=std::make_shared<certificate_node>();
+    mSelfSignedCert->certificate=selfSignedX509;
+    mSelfSignedCert->parent.reset();
+    mSelfSignedCert->children=std::vector<std::shared_ptr<certificate_node>>();
+
+    DevId selfId = DevId("/CN="+name, CertificateHandler::getPublicKey(*selfSignedX509));
+    mX509Searcher[DevId(selfId)]=std::weak_ptr<certificate_node>(mSelfSignedCert);
+
+    /* std::cout << mX509Searcher[selfId].lock()->children.size(); */
+}
+
+/* Add a certificate to the tree data structure
+ * @params cert The certificate to add
+ * @params signerKey The public of the signer of the added certificate
+ */
+void CertificateHandler::addCertificate(X509Ptr cert, Poco::Crypto::RSAKey signerKey){
+
+    DevId issuer = DevId(cert->issuerName(), CertificateHandler::keyToString(signerKey));
+
+    if (mX509Searcher.contains(issuer)){
+        std::shared_ptr<certificate_node> parentNode = mX509Searcher.at(issuer).lock();
+        std::shared_ptr<certificate_node> newNode=std::make_shared<certificate_node>();
+        newNode->children=std::vector<std::shared_ptr<certificate_node>>();
+        newNode->certificate = cert;
+        newNode->parent = parentNode;
+        parentNode->children.push_back(newNode);
+
+        /* std::cout << parentNode->certificate->subjectName(); */
+
+        mX509Searcher[DevId(cert->subjectName(), CertificateHandler::getPublicKey(*cert))]=std::weak_ptr<certificate_node>(newNode);
+    } else {
+        std::cout << "Signer not found, cannot be added to the tree" << std::endl;
+    }
+}
+
+/* Go through the tree starting from a certificate in order to get the chain to the root
+ * @params cert Certificate starting point of the chain
+ * @return a list of certificate to be used by checkCertificateChain
+ */
+Poco::Crypto::X509Certificate::List CertificateHandler::findChainCert(CertificateHandler::X509Ptr cert){
+    Poco::Crypto::X509Certificate::List res;
+    std::string s = "";
+    DevId clientId = DevId(cert->subjectName(), CertificateHandler::getPublicKey(*cert));
+    if (!mX509Searcher.contains(clientId)){
+        return Poco::Crypto::X509Certificate::List();
+    } else {
+        std::shared_ptr<certificate_node> currentNode = mX509Searcher.at(clientId).lock();
+        /* if (currentNode) */
+        while (currentNode.get() and !currentNode->parent.expired()){
+            s += "s";
+            res.push_back(*currentNode->certificate);
+            currentNode = currentNode->parent.lock();
+        }
+        if (currentNode.get()){
+            res.push_back(*currentNode->certificate);
+        }
+    }
+    return res;
 }
 
 
@@ -86,7 +145,7 @@ CertificateHandler::X509Ptr CertificateHandler::sign(std::string issuerName, EVP
 /// @param validityDate
 /// @return a pointer to a new self signed certificate
 
-CertificateHandler::X509Ptr CertificateHandler::selfSign(std::string name, EVP_PKEY* keyPair, int validityDays){
+CertificateHandler::X509Ptr CertificateHandler::selfSign(std::string name, EVP_PKEY * keyPair, int validityDays){
     return CertificateHandler::sign(name, keyPair, name, keyPair, validityDays);
 }
 
@@ -97,11 +156,13 @@ CertificateHandler::X509Ptr CertificateHandler::selfSign(std::string name, EVP_P
 bool CertificateHandler::checkCertificateChain( Poco::Crypto::X509Certificate::List certChain, Poco::Crypto::X509Certificate selfSignedCert)
 {
     bool status = true;
-
+    if (certChain.size() < 1){
+        return false;
+    }
     //Adding the entire list to the store
     Poco::Crypto::X509Certificate::List::iterator itr;
     /* int i(0); */
-    for (itr = certChain.begin(); (itr+1) != certChain.end(); itr++){
+    for (itr = certChain.begin(); (itr+1) != certChain.end() and (itr) != certChain.end(); itr++){
         if (!itr->issuedBy(*(itr+1))){
             status = false;
             /* std::cout << i; */
@@ -112,7 +173,7 @@ bool CertificateHandler::checkCertificateChain( Poco::Crypto::X509Certificate::L
     /* std::stringstream ss; */
     /* selfSignedCert.print( ss ); */
     /* std::cout << ss.str(); */
-    std::cout << CertificateHandler::getPublicKey(selfSignedCert);
+    /* std::cout << CertificateHandler::getPublicKey(selfSignedCert); */
     return status;
 }
 
@@ -136,3 +197,11 @@ std::string CertificateHandler::getPublicKey(Poco::Crypto::X509Certificate cert)
     a.save(ss.get());
     return ss->str();
 }
+
+std::string CertificateHandler::keyToString(Poco::Crypto::RSAKey key){
+    std::unique_ptr<std::stringstream>  ss = std::make_unique<std::stringstream>();
+    Poco::Crypto::RSAKeyImpl::Ptr a = key.impl();
+    a->save(ss.get());
+    return ss->str();
+}
+

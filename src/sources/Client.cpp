@@ -22,6 +22,8 @@ int Client::init(const char * serverAddress)
         printf("\nInvalid address/ Address not supported \n");
         return -1;
     }
+
+    return 1;
 }
 
 Client::Client(const char * serverAddress)
@@ -41,5 +43,10 @@ bool Client::connectToServer()
     return true;
 }
 
-sockaddr_in Client::getServerAddress() {}
+sockaddr_in Client::getServerAddress() {
+
+    return mServerAddress;
+}
+
+int Client::getSocket() { return mSocket; }
 

@@ -25,6 +25,7 @@ public:
 
     Server();
     bool listenForConnectionRequests();
+    int getNewSocket();
 
 };
 

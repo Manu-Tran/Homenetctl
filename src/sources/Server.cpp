@@ -55,3 +55,5 @@ bool Server::listenForConnectionRequests()
         return true;
 
 }
+
+int Server::getNewSocket() { return mNew_socket; }

@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
         show_usage(argv[0]);
         return 1;
     }
+    bool result = false;
     std::vector <std::string> sources;
     std::string port;
     bool test=false;
@@ -74,10 +75,10 @@ int main(int argc, char* argv[])
             std::cout << "server created" << std::endl;
             serv.listenForConnectionRequests();
             std::cout << "server connected" << std::endl;
-            serv.receiveFile("/home/romain/Documents/tests/certs/serverRecv.txt");
-            std::cout << "server file received" << std::endl;
-            serv.sendFile("/home/romain/Documents/tests/certs/serverSend.txt");
-            std::cout << "server file sent" << std::endl;
+            result = serv.receiveFile("/home/romain/Documents/tests/certs/serverRecv.txt",serv.getNewSocket());
+            if(result) std::cout << "server file received" << std::endl;
+            result = serv.sendFile("/home/romain/Documents/tests/certs/serverSend.txt", serv.getNewSocket());
+            if(result) std::cout << "server file sent" << std::endl;
             return 0;
 
         } else if ((arg == "--client")) {
@@ -85,10 +86,11 @@ int main(int argc, char* argv[])
             std::cout << "client created" << std::endl;
             cl.connectToServer();
             std::cout << "client connected" << std::endl;
-            cl.sendFile("/home/romain/Documents/tests/certs/clientSend.txt");
-            std::cout << "client file sent" << std::endl;
-            cl.receiveFile("/home/romain/Documents/tests/certs/clientRecv.txt");
-            std::cout << "client file received" << std::endl;
+            result = cl.sendFile("/home/romain/Documents/tests/certs/clientSend.txt", cl.getSocket());
+            if(result) std::cout << "client file sent" << std::endl;
+            result = cl.receiveFile("/home/romain/Documents/tests/certs/clientRecv.txt", cl.getSocket());
+            if(result) std::cout << "client file received" << std::endl;
+
             return 0;
 
         } else if ((arg == "-r") || (arg == "--reset")) {

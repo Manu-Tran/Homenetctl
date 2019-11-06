@@ -27,6 +27,7 @@ public:
     sockaddr_in getServerAddress();
 
     bool connectToServer();
+    int getSocket();
 
 };
 

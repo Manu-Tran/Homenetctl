@@ -26,8 +26,8 @@ public:
     Socket();
 
     std::string readFile(std::string path);
-    bool sendFile(std::string path);
-    bool receiveFile(std::string path);
+    bool sendFile(std::string path, int socket);
+    bool receiveFile(std::string path, int socket);
 
 };
 

@@ -5,6 +5,35 @@
 #include "certificateHandler.h"
 #include <memory>
 
+namespace fs = std::filesystem;
+
+CertificateHandler::CertificateHandler(EVP_PKEY * privKey, std::string name, std::string certDirPath, std::string selfSignedCertName)
+    : mCertDir(certDirPath)
+{
+    CertificateHandler::X509Ptr selfSignedX509;
+    if (fs::exists(certDirPath / (fs::path)selfSignedCertName)){
+        selfSignedX509 = std::make_shared<Poco::Crypto::X509Certificate>(certDirPath / (fs::path)selfSignedCertName);
+    } else {
+        selfSignedX509 = CertificateHandler::selfSign(name, privKey, 30);
+    }
+
+    bool abort = false;
+    if (selfSignedX509->issuerName() != name){
+        abort = true;
+        std::cout << "ERROR : The given name does not match the one on the self signed certificate";
+    }
+
+    if (CertificateHandler::checkCertificate(*CertificateHandler::selfSign(name, privKey, 30), *selfSignedX509)){
+        abort = true;
+        std::cout << "ERROR : The given private key does not match the public key on the self signed certificate";
+    }
+
+    if (abort){
+        std::exit(EXIT_FAILURE);
+    }
+    /* mX509Searcher[DevId(name,  )] */
+}
+
 
 /// Generate a new signed certificate
 /// @param nameIssuer
@@ -80,6 +109,10 @@ bool CertificateHandler::checkCertificateChain( Poco::Crypto::X509Certificate::L
         /* i++; */
     }
     status = status and itr->issuedBy(selfSignedCert);
+    /* std::stringstream ss; */
+    /* selfSignedCert.print( ss ); */
+    /* std::cout << ss.str(); */
+    std::cout << CertificateHandler::getPublicKey(selfSignedCert);
     return status;
 }
 
@@ -93,3 +126,13 @@ bool CertificateHandler::checkCertificate( Poco::Crypto::X509Certificate clientC
     return clientCert.issuedBy(selfSignedCert);
 }
 
+/* Return the string value of the public key in the X509Certificate
+ * @param certificate's key to print
+ * @return Public key in PEM format in a string
+ */
+std::string CertificateHandler::getPublicKey(Poco::Crypto::X509Certificate cert){
+    std::unique_ptr<std::stringstream>  ss = std::make_unique<std::stringstream>();
+    Poco::Crypto::RSAKeyImpl a = Poco::Crypto::RSAKeyImpl(cert);
+    a.save(ss.get());
+    return ss->str();
+}

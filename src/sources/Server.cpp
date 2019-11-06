@@ -4,7 +4,7 @@
 
 #include "Server.h"
 
-Server::Server(int port)
+Server::Server(const char * addr, int port)
 {
     int opt = 1;
 
@@ -22,7 +22,7 @@ Server::Server(int port)
         exit(EXIT_FAILURE);
     }
     mServerAddress.sin_family = AF_INET;
-    mServerAddress.sin_addr.s_addr = INADDR_ANY;
+    mServerAddress.sin_addr.s_addr = inet_addr(addr);
     mServerAddress.sin_port = htons( port );
 
     if (bind(mSocket, (struct sockaddr *)&mServerAddress,

@@ -41,7 +41,8 @@ static void show_usage(std::string name)
               << "Options:\n"
               << "\t-h,--help\t\tShow this help message\n"
               << "\t-r,--reset\t\tReset the configuration\n"
-              << "\t-s <PORT>,--server <PORT>\t\tReset the configuration\n"
+              << "\t-s <PORT> <SERVER IP>,--server <PORT> <SERVER IP>\t\tReset the configuration\n"
+              << "\t-c <PORT> <SERVER IP>,--client <PORT> <SERVER IP>\t"
               << "\t--test\t\tLaunch tests"
               << std::endl;
 }
@@ -55,6 +56,7 @@ int main(int argc, char* argv[])
     bool result = false;
     std::vector <std::string> sources;
     int port;
+    const char * addr;
     bool test=false;
 
     for (int i = 1; i < argc; ++i) {
@@ -64,12 +66,12 @@ int main(int argc, char* argv[])
             show_usage(argv[0]);
             return 0;
         } else if ((arg == "-s") || (arg == "--server")) {
-            if (i + 1 < argc) {
-                port = std::stoi(argv[i+1]);
-                std::cout << port << std::endl;
+            if (i + 2 < argc) {
+                addr = argv[i+1];
+                port = std::stoi(argv[i+2]);
 
-                Server serv(port);
-                std::cout << "server created" << std::endl;
+                Server serv(addr, port);
+                std::cout << "server created at address: " << addr << " and port: " << port << std::endl;
                 serv.listenForConnectionRequests();
                 std::cout << "server connected" << std::endl;
                 result = serv.receiveFile("/home/romain/Documents/tests/certs/serverRecv.txt",serv.getNewSocket());
@@ -79,19 +81,29 @@ int main(int argc, char* argv[])
                 return 0;
 
             } else {
-                  std::cerr << "--server option requires one argument." << std::endl;
+                  std::cerr << "--server option requires two arguments." << std::endl;
                 return 1;
             }
 
-        } else if ((arg == "--client")) {
-            Client cl("127.0.0.1",1234);
-            std::cout << "client created" << std::endl;
-            cl.connectToServer();
-            std::cout << "client connected" << std::endl;
-            result = cl.sendFile("/home/romain/Documents/tests/certs/clientSend.txt", cl.getSocket());
-            if(result) std::cout << "client file sent" << std::endl;
-            result = cl.receiveFile("/home/romain/Documents/tests/certs/clientRecv.txt", cl.getSocket());
-            if(result) std::cout << "client file received" << std::endl;
+        } else if ((arg == "--client" || arg == "-c")) {
+
+            if(i+2 < argc) {
+                addr = argv[i+1];
+                port = std::stoi(argv[i+2]);
+
+                Client cl(addr,port);
+                std::cout << "client created" << std::endl;
+                cl.connectToServer();
+                std::cout << "client connected" << std::endl;
+                result = cl.sendFile("/home/romain/Documents/tests/certs/clientSend.txt", cl.getSocket());
+                if(result) std::cout << "client file sent" << std::endl;
+                result = cl.receiveFile("/home/romain/Documents/tests/certs/clientRecv.txt", cl.getSocket());
+                if(result) std::cout << "client file received" << std::endl;
+
+            } else {
+                std::cerr << "--client option requires two arguments." << std::endl;
+                return 1;
+            }
 
             return 0;
 

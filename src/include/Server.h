@@ -24,7 +24,7 @@ private:
 
 public:
 
-    Server(int port);
+    Server(const char * add, int port);
     bool listenForConnectionRequests();
     int getNewSocket();
 

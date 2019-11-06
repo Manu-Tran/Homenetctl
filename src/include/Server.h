@@ -19,11 +19,12 @@ class Server : public Socket{
 
 private:
 
-    int  mNew_socket;
+    int mNew_socket;
+    int mPort;
 
 public:
 
-    Server();
+    Server(int port);
     bool listenForConnectionRequests();
     int getNewSocket();
 

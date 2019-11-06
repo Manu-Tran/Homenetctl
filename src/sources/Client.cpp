@@ -5,7 +5,7 @@
 
 #include "Client.h"
 
-int Client::init(const char * serverAddress)
+int Client::init(const char * serverAddress, int port)
 {
     if ((mSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
@@ -14,7 +14,7 @@ int Client::init(const char * serverAddress)
     }
 
     mServerAddress.sin_family = AF_INET;
-    mServerAddress.sin_port = htons(PORT);
+    mServerAddress.sin_port = htons(port);
 
     // Convert IPv4 and IPv6 addresses from text to binary form
     if(inet_pton(AF_INET, serverAddress, &mServerAddress.sin_addr)<=0)
@@ -26,9 +26,9 @@ int Client::init(const char * serverAddress)
     return 1;
 }
 
-Client::Client(const char * serverAddress)
+Client::Client(const char * serverAddress, int port)
 {
-    int result = init(serverAddress);
+    int result = init(serverAddress, port);
     if(result == -1)
         exit(EXIT_FAILURE);
 }
@@ -41,11 +41,6 @@ bool Client::connectToServer()
         return false;
     }
     return true;
-}
-
-sockaddr_in Client::getServerAddress() {
-
-    return mServerAddress;
 }
 
 int Client::getSocket() { return mSocket; }

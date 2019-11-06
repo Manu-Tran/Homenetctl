@@ -4,7 +4,7 @@
 
 #include "Server.h"
 
-Server::Server()
+Server::Server(int port)
 {
     int opt = 1;
 
@@ -15,7 +15,6 @@ Server::Server()
         exit(EXIT_FAILURE);
     }
 
-    // Forcefully attaching socket to the port 8080
     if (setsockopt(mSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
                    &opt, sizeof(opt)))
     {
@@ -24,9 +23,8 @@ Server::Server()
     }
     mServerAddress.sin_family = AF_INET;
     mServerAddress.sin_addr.s_addr = INADDR_ANY;
-    mServerAddress.sin_port = htons( PORT );
+    mServerAddress.sin_port = htons( port );
 
-    // Forcefully attaching socket to the port 8080
     if (bind(mSocket, (struct sockaddr *)&mServerAddress,
              sizeof(mServerAddress))<0)
     {

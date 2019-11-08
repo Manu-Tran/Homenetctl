@@ -40,6 +40,8 @@
 /* } */
 
 bool TestHandler::test3(){
+    RSAKeyPair a;
+    a.generate_key("1");
     Poco::Crypto::EVPPKey key = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_1.pem", "/tmp/homenetctl/privateKey_1.pem");
     std::string nom = "name";
     return CertificateHandler::checkCertificate(*CertificateHandler::selfSign(nom, key, 30), *CertificateHandler::selfSign(nom,key,30));
@@ -106,7 +108,6 @@ bool TestHandler::test5(){
     auto cert4 = CertificateHandler::sign(nomServ, keyServer, nom3, key3,10);
 
     auto selfsigncert = CertificateHandler::selfSign(nomServ, keyServer,10);
-
     CertificateHandler handler(keyServer, nomServ);
     handler.addCertificate(cert4, keyServer);
     handler.addCertificate(cert3, key3);

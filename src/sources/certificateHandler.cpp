@@ -94,8 +94,6 @@ Poco::Crypto::X509Certificate::List CertificateHandler::findChainCert(Certificat
 }
 
 
-
-
 /// Generate a new signed certificate
 /// @param nameIssuer
 /// @param privkeyIssuer

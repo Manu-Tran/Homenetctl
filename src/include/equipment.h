@@ -11,17 +11,28 @@
 #include "RSAKeyPair.h"
 #include <memory>
 #include "certificateHandler.h"
+#include <vector>
 
 class Equipment {
 
 private:
     std::string mId;
     RSAKeyPair mKeys;
-    //Poco::Crypto::EVPPKey evpkey;
-    CertificateHandler::X509Ptr mSelfSignedCertificate;
     int mPort;
 
+    std::string pathCA;
+    std::string pathDA;
+
+    CertificateHandler::X509Ptr mSelfSignedCertificate;
+
+    std::vector<Poco::Crypto::X509Certificate> CA;
+    std::vector<Poco::Crypto::X509Certificate> DA;
+
 public:
+
+    //SAVE & LOAD
+    void saveInCA(Poco::Crypto::X509Certificate cert, std::string path);
+    std::vector<Poco::Crypto::X509Certificate> loadCA();
 
     //CONSTRUCTORS
     Equipment();

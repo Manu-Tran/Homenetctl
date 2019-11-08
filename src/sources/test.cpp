@@ -119,5 +119,6 @@ bool TestHandler::test5(){
 bool TestHandler::test6()
 {
     Equipment A("A",1234);
+    A.display_CA();
     return true;
 }

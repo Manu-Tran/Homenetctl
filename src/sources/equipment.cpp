@@ -10,6 +10,7 @@ Equipment::Equipment(std::string id, int port)
 {
     //ID and Port are gotten from user input
     mId=id;
+    pathCA = "/tmp/homenetctl/certs/" + mId + ".pem";
     mPort=port;
 
     //Key generation
@@ -28,14 +29,63 @@ Equipment::Equipment(std::string id, int port)
     {
         std::cout << "error in the selfsigned certificate" << std::endl;
         exit(EXIT_FAILURE);
+    } else {
+        saveInCA(*(mSelfSignedCertificate),pathCA);
     }
 
 }
 
+//SAVE & LOAD
+void Equipment::saveInCA(Poco::Crypto::X509Certificate cert, std::string path)
+{
+    CA.push_back(cert);
+    Poco::Crypto::X509Certificate::writePEM(path,CA);
+    std::cout << "CA was saved in: " << pathCA << std::endl;
+}
+
+std::vector<Poco::Crypto::X509Certificate> Equipment::loadCA()
+{
+    return Poco::Crypto::X509Certificate::readPEM(pathCA);
+}
+
 //DISPLAY
-void Equipment::display_CA() {}
-void Equipment::display_DA() {}
-void Equipment::display() {}
+void Equipment::display_CA()
+{
+    std::string certs;
+    std::ifstream fileCA (pathCA);
+    if (fileCA.is_open())
+    {
+        std::cout << "certs from CA: " << std::endl;
+        while ( getline (fileCA,certs) )
+        {
+            std::cout << certs << '\n';
+        }
+        fileCA.close();
+    }
+
+    else std::cout << "Unable to open CA file";
+}
+void Equipment::display_DA()
+{
+    std::string certs;
+    std::ifstream fileDA (pathDA);
+    if (fileDA.is_open())
+    {
+        std::cout << "certs from DA: " << std::endl;
+        while ( getline (fileDA,certs) )
+        {
+            std::cout << certs << '\n';
+        }
+        fileDA.close();
+    }
+
+    else std::cout << "Unable to open DA file";
+}
+void Equipment::display()
+{
+    display_CA();
+    display_DA();
+}
 
 //GETTERS
 std::string Equipment::getName() {return mId;}

@@ -2,7 +2,6 @@
 // Created by romain on 15/10/2019.
 //
 
-#include <string>
 #include "equipment.h"
 
 //CONSTRUCTORS
@@ -34,6 +33,20 @@ Equipment::Equipment(std::string id, int port)
     }
 
 }
+
+//create a new certficate from a received certificate
+Poco::Crypto::X509Certificate Equipment::newCertificate(std::shared_ptr<Poco::Crypto::X509Certificate> cert, std::string clientName)
+{
+    //get key from certificate
+    RSAKeyPair clientKey(clientName, *cert);
+
+    //create a new one and sign it using my key
+    auto cert1 = CertificateHandler::sign(mId,Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()),clientName,Poco::Crypto::EVPPKey(clientKey.loadKeys(false).get()),30);
+
+    //return it
+    return *cert1;
+}
+
 
 //SAVE & LOAD
 void Equipment::saveInCA(Poco::Crypto::X509Certificate cert, std::string path)
@@ -88,11 +101,12 @@ void Equipment::display()
 }
 
 //GETTERS
-std::string Equipment::getName() {return mId;}
-RSAKeyPair Equipment::getKeys() {return mKeys;}
-int Equipment::getPort() {return mPort;}
+std::string Equipment::getName() { return mId; }
+RSAKeyPair Equipment::getKeys() { return mKeys; }
+int Equipment::getPort() { return mPort; }
+Poco::Crypto::X509Certificate Equipment::getSelfSignedCertificate() { return *mSelfSignedCertificate; }
 
 //SETTERS
-void Equipment::setName(std::string newId) {mId=newId;}
-void Equipment::setKeys(RSAKeyPair newKeys) {mKeys=newKeys;}
-void Equipment::setPort(int newPort) {mPort=newPort;}
+void Equipment::setName(std::string newId) { mId=newId; }
+void Equipment::setKeys(RSAKeyPair newKeys) { mKeys=newKeys; }
+void Equipment::setPort(int newPort) { mPort=newPort; }

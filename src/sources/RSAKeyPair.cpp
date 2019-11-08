@@ -2,6 +2,7 @@
 // Created by romain on 15/10/2019.
 //
 
+#include <Poco/Crypto/X509Certificate.h>
 #include "RSAKeyPair.h"
 
 namespace fs = std::filesystem;
@@ -30,6 +31,43 @@ RSAKeyPair::RSAKeyPair()
             std::exit(EXIT_FAILURE);
         }
     }
+}
+
+RSAKeyPair::RSAKeyPair(std::string keyname, Poco::Crypto::X509Certificate cert)
+{
+    Poco::Crypto::RSAKey clientKey(cert);
+    std::string publicKeyName = "clientPublicKey";
+    std::string privateKeyName = "clientPrivateKey";
+    if (keyname != ""){
+        publicKeyName  += "_" + keyname;
+        privateKeyName += "_" + keyname;
+    }
+    publicKeyName  += ".pem";
+    privateKeyName += ".pem";
+
+    //Save said key into 2 PEM files, one for public key one for private key
+    clientKey.save(mPath / publicKeyName,mPath / privateKeyName,"");
+
+    //Load the public and private keys from their files into the classes's fields
+    std::ifstream pub, priv;
+    std::string line, pubKey, priKey;
+
+    pub.open(mPath / publicKeyName);
+    priv.open(mPath / privateKeyName);
+
+    if (pub) {
+        while (std::getline(pub, line)) {
+            pubKey+=line;
+        }
+    } else {
+        std::cout << "could not open public key file" << std::endl;
+    }
+    if (priv) {
+        while (std::getline(priv, line)) {
+            priKey+=line;
+        }
+    } else
+        std::cout << "could not open private key file" << std::endl;
 }
 
 std::unique_ptr<Poco::Crypto::RSAKey> RSAKeyPair::loadKeys(bool priv){

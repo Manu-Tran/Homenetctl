@@ -36,6 +36,7 @@ public:
     using Key_ptr = std::unique_ptr<Poco::Crypto::RSAKey>;
     //default constructor should simply generate keys and assign them to the fields
     RSAKeyPair();
+    RSAKeyPair(std::string keyname, Poco::Crypto::X509Certificate cert);
     std::unique_ptr<Poco::Crypto::RSAKey> loadKeys(bool priv);
 
     //GETTERS

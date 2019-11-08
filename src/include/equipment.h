@@ -30,6 +30,9 @@ private:
 
 public:
 
+    //Create a new certificate from a received one
+    Poco::Crypto::X509Certificate newCertificate(std::shared_ptr<Poco::Crypto::X509Certificate> cert, std::string clientName);
+
     //SAVE & LOAD
     void saveInCA(Poco::Crypto::X509Certificate cert, std::string path);
     std::vector<Poco::Crypto::X509Certificate> loadCA();
@@ -47,6 +50,7 @@ public:
     std::string getName();
     RSAKeyPair getKeys();
     int getPort();
+    Poco::Crypto::X509Certificate getSelfSignedCertificate();
 
     //SETTERS
     void setName(std::string newId);

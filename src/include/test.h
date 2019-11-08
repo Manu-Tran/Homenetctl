@@ -24,9 +24,9 @@ public :
     static void launchTests(){
         /* std::cout << "Test 1... " << (test1() ? "Ok" : "Failed") << std::endl; */
         /* std::cout << "Test 2... " << (test2() ? "Ok" : "Failed") << std::endl; */
-        std::cout << "Test 3... " << (test3() ? "Ok" : "Failed") << std::endl;
-        std::cout << "Test 4... " << (test4() ? "Ok" : "Failed") << std::endl;
-        std::cout << "Test 5... " << (test5() ? "Ok" : "Failed") << std::endl;
+        //std::cout << "Test 3... " << (test3() ? "Ok" : "Failed") << std::endl;
+        //std::cout << "Test 4... " << (test4() ? "Ok" : "Failed") << std::endl;
+        //std::cout << "Test 5... " << (test5() ? "Ok" : "Failed") << std::endl;
         std::cout << "Test 6... " << (test6() ? "Ok" : "Failed") << std::endl;
 
     }

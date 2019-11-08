@@ -15,9 +15,9 @@ SET(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSIO
 #======================================================================
 # Common setup
 if (CMAKE_VERSION VERSION_LESS "3.1")
-    add_definitions(-std=c++17)
+    add_definitions(-std=c++20)
 else()
-    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 

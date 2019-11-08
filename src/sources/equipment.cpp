@@ -7,12 +7,29 @@
 
 //CONSTRUCTORS
 Equipment::Equipment(std::string id, int port)
-    : mSelfSignedCertificate(CertificateHandler::selfSign(mId, Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()), 30))
 {
-    mId=std::move(id); //the Id will be an user input, so we don't need it anymore afterwards, hence moving it is okay.
+    //ID and Port are gotten from user input
+    mId=id;
     mPort=port;
-    mKeys = RSAKeyPair();
+
+    //Key generation
+    mKeys.generate_key(id);
+
+    Poco::Crypto::EVPPKey evpkey = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_" + id + ".pem", "/tmp/homenetctl/privateKey_" + id + ".pem");
+
+    //Generate self signed certificate
+    mSelfSignedCertificate = CertificateHandler::selfSign(mId, Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()), 30);
+
     /* mSelfSignedCertificate = Certificate((char *) mId.c_str(), Poco::Crypto::EVPPKey(mKeys.get()), 30); */
+
+    //Check that everything went well by checking the certificate's signature
+    bool result = CertificateHandler::checkCertificate(*CertificateHandler::selfSign(mId, Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()), 30), *mSelfSignedCertificate);
+    if(!result)
+    {
+        std::cout << "error in the selfsigned certificate" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
 }
 
 //DISPLAY

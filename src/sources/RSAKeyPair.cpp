@@ -15,6 +15,7 @@ RSAKeyPair::RSAKeyPair()
     if(!fs::exists(mPath))
     {
         fs::create_directory(mPath);
+        std::cout << "Directory was created" << std::endl;
     }
     if(fs::exists(mPubKeyPath) && fs::exists(mPrivKeyPath))
     {

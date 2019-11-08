@@ -17,6 +17,7 @@ class Equipment {
 private:
     std::string mId;
     RSAKeyPair mKeys;
+    //Poco::Crypto::EVPPKey evpkey;
     CertificateHandler::X509Ptr mSelfSignedCertificate;
     int mPort;
 

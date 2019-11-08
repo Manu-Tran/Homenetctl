@@ -115,3 +115,9 @@ bool TestHandler::test5(){
     handler.addCertificate(cert1, key1);
     return CertificateHandler::checkCertificateChain(handler.findChainCert(cert1), *selfsigncert);
 }
+
+bool TestHandler::test6()
+{
+    Equipment A("A",1234);
+    return true;
+}

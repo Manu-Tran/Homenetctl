@@ -8,6 +8,8 @@
 #include <openssl/pem.h>
 #include <openssl/x509.h>
 #include <Poco/Crypto/EVPPKey.h>
+#include <Client.h>
+#include <Server.h>
 
 /* Generates a 2048-bit RSA key. */
 EVP_PKEY * generate_key()
@@ -50,31 +52,55 @@ int main(int argc, char* argv[])
         show_usage(argv[0]);
         return 1;
     }
+    bool result = false;
     std::vector <std::string> sources;
     std::string port;
     bool test=false;
+
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
+
         if ((arg == "-h") || (arg == "--help")) {
             show_usage(argv[0]);
             return 0;
-        } else
-        if ((arg == "-s") || (arg == "--server")) {
-            if (i + 1 < argc) {
+        } else if ((arg == "-s") || (arg == "--server")) {
+            /*if (i + 1 < argc) {
                 port = argv[i++];
             } else {
                   std::cerr << "--server option requires one argument." << std::endl;
                 return 1;
-            }
-        } else
-        if ((arg == "-r") || (arg == "--reset")) {
+            }*/
+
+            Server serv;
+            std::cout << "server created" << std::endl;
+            serv.listenForConnectionRequests();
+            std::cout << "server connected" << std::endl;
+            result = serv.receiveFile("/home/romain/Documents/tests/certs/serverRecv.txt",serv.getNewSocket());
+            if(result) std::cout << "server file received" << std::endl;
+            result = serv.sendFile("/home/romain/Documents/tests/certs/serverSend.txt", serv.getNewSocket());
+            if(result) std::cout << "server file sent" << std::endl;
+            return 0;
+
+        } else if ((arg == "--client")) {
+            Client cl("127.0.0.1");
+            std::cout << "client created" << std::endl;
+            cl.connectToServer();
+            std::cout << "client connected" << std::endl;
+            result = cl.sendFile("/home/romain/Documents/tests/certs/clientSend.txt", cl.getSocket());
+            if(result) std::cout << "client file sent" << std::endl;
+            result = cl.receiveFile("/home/romain/Documents/tests/certs/clientRecv.txt", cl.getSocket());
+            if(result) std::cout << "client file received" << std::endl;
+
+            return 0;
+
+        } else if ((arg == "-r") || (arg == "--reset")) {
             show_usage(argv[0]);
             return 0;
-        } else
-        if ((arg == "--test")) {
-            test=true;
+        } else if ((arg == "--test")) {
+            test = true;
         }
     }
+
     if (test) {
        std::cout << "Launching Tests :" << std::endl;
        TestHandler::launchTests();

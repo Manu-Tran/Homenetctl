@@ -5,6 +5,12 @@
 
 #include "Client.h"
 
+/**
+ * Function used to initialize a client socket
+ * @param serverAddress
+ * @param port
+ * @return
+ */
 int Client::init(const char * serverAddress, int port)
 {
     if ((mSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -26,6 +32,11 @@ int Client::init(const char * serverAddress, int port)
     return 1;
 }
 
+/**
+ * Constructor for Client
+ * @param serverAddress
+ * @param port
+ */
 Client::Client(const char * serverAddress, int port)
 {
     int result = init(serverAddress, port);
@@ -33,6 +44,10 @@ Client::Client(const char * serverAddress, int port)
         exit(EXIT_FAILURE);
 }
 
+/**
+ * Connection to server
+ * @return
+ */
 bool Client::connectToServer()
 {
     if (connect(mSocket, (struct sockaddr *)&mServerAddress, sizeof(mServerAddress)) < 0)

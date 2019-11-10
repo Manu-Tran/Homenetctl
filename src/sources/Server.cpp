@@ -4,6 +4,11 @@
 
 #include "Server.h"
 
+/**
+ * Constructor for Server - handles the creation of server socket and address & port binding
+ * @param addr
+ * @param port
+ */
 Server::Server(const char * addr, int port)
 {
     int opt = 1;
@@ -33,6 +38,10 @@ Server::Server(const char * addr, int port)
     }
 }
 
+/**
+ * Used to listen to requests from Client sockets
+ * @return
+ */
 bool Server::listenForConnectionRequests()
 {
 

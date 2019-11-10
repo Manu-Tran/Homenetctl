@@ -8,6 +8,11 @@
 
 Socket::Socket() {}
 
+/**
+ * Reads file at given path
+ * @param path
+ * @return
+ */
 std::string Socket::readFile(std::string path)
 {
     std::string line, buff;
@@ -17,6 +22,12 @@ std::string Socket::readFile(std::string path)
     return buff;
 }
 
+/**
+ * Sends file through given socket
+ * @param path
+ * @param socket
+ * @return
+ */
 bool Socket::sendFile(std::string path, int socket)
 {
     std::string fileContents = readFile(path);
@@ -28,6 +39,12 @@ bool Socket::sendFile(std::string path, int socket)
         return false;
 }
 
+/**
+ * Receives file and stores it at given path
+ * @param path
+ * @param socket
+ * @return
+ */
 bool Socket::receiveFile(std::string path, int socket)
 {
     int valread;

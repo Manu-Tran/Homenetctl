@@ -133,5 +133,11 @@ bool TestHandler::test6()
     truc.push_back(test);
     Poco::Crypto::X509Certificate::writePEM("/tmp/homenetctl/certs/testClientCert.pem",truc);
 
+    if(CertificateHandler::checkCertificate(test,A.getSelfSignedCertificate()))
+        std::cout << "correct!" << std::endl;
+    else
+        std::cout << "you suck" << std::endl;
+
+
     return true;
 }

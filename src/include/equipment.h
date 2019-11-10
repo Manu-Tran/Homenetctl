@@ -31,11 +31,10 @@ private:
 public:
 
     //Create a new certificate from a received one
-    Poco::Crypto::X509Certificate newCertificate(std::shared_ptr<Poco::Crypto::X509Certificate> cert, std::string clientName);
+    Poco::Crypto::X509Certificate newCertificate(CertificateHandler::X509Ptr cert, std::string clientName);
 
     //SAVE & LOAD
-    void saveInCA(Poco::Crypto::X509Certificate cert, std::string path);
-    std::vector<Poco::Crypto::X509Certificate> loadCA();
+    void AddInCA(CertificateHandler::X509Ptr cert);
 
     //CONSTRUCTORS
     Equipment();

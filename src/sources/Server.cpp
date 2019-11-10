@@ -46,6 +46,7 @@ bool Server::listenForConnectionRequests()
 {
 
     int addrlen = sizeof(mServerAddress);
+    char userInput;
 
     if (listen(mSocket, 3) < 0)
     {
@@ -55,11 +56,33 @@ bool Server::listenForConnectionRequests()
     if ((mNew_socket = accept(mSocket, (struct sockaddr *)&mServerAddress,
                              (socklen_t*)&addrlen))<0)
     {
+
         perror("accept");
         exit(EXIT_FAILURE);
     }
     else
-        return true;
+    {
+        std::cout << "A new Equipment is trying to connect to you, are you okay with that? [y/n]" << std::endl;
+
+        while(true) {
+            std::cin >> userInput;
+
+            switch (userInput) {
+                case 'y' :
+                    std::cout << "We will now proceed on adding the new Equipment" << std::endl;
+                    return true;
+                    break;
+                case 'n' :
+                    std::cout << "Okay well too bad" << std::endl;
+                    return false;
+                default:
+                    std::cout << "Please enter a valid answer: " << std::endl;
+
+
+            }
+        }
+
+    }
 
 }
 

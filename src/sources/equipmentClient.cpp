@@ -16,46 +16,49 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
     //Create Client socket and connect to server using address and port
     Client cl(serverAddress,mPort);
     std::cout << "client created" << std::endl;
-    cl.connectToServer();
-    std::cout << "client connected" << std::endl;
+    result = cl.connectToServer();
 
-    //write selfsigned certificate to temp file --> writeCertificateToFile()
-    this->writeCertificateToFile(*mSelfSignedCertificate,selfSignedPath);
+    if(result) {
+        std::cout << "client connected" << std::endl;
 
-    //Send temp file to server
-    result = cl.sendFile(selfSignedPath, cl.getSocket());
-    if(result) std::cout << "Client Self Signed Certificate sent!" << std::endl;
+        //write selfsigned certificate to temp file --> writeCertificateToFile()
+        this->writeCertificateToFile(*mSelfSignedCertificate, selfSignedPath);
 
-    //Receive new certificate from server INTO TEMP FILE
-    result = cl.receiveFile(receivedSelfSignedPath, cl.getSocket(),940);
-    if(result) std::cout << "Server self signed certificate received!" << std::endl;
+        //Send temp file to server
+        result = cl.sendFile(selfSignedPath, cl.getSocket());
+        if (result) std::cout << "Client Self Signed Certificate sent!" << std::endl;
 
-    //read temp file to a certificate --> readCertificateFromFile()
-    Poco::Crypto::X509Certificate newCert = readCertificateFromFile(receivedSelfSignedPath);
-    std::cout << "read selfsigned cert from file" << std::endl;
+        //Receive new certificate from server INTO TEMP FILE
+        result = cl.receiveFile(receivedSelfSignedPath, cl.getSocket(), 940);
+        if (result) std::cout << "Server self signed certificate received!" << std::endl;
 
-    //Create the new certificate from this file --> newCertfificate()
-    newCert = newCertificate(newCert,newCert.commonName());
+        //read temp file to a certificate --> readCertificateFromFile()
+        Poco::Crypto::X509Certificate newCert = readCertificateFromFile(receivedSelfSignedPath);
+        //std::cout << "read selfsigned cert from file" << std::endl;
 
-    //Write new certificate to file
-    this->writeCertificateToFile((newCert),newCertPath);
+        //Create the new certificate from this file --> newCertfificate()
+        newCert = newCertificate(newCert, newCert.commonName());
 
-    //Send That file
-    result = cl.sendFile(newCertPath, cl.getSocket());
-    if(result) std::cout << "new Certificate sent!" << std::endl;
+        //Write new certificate to file
+        this->writeCertificateToFile((newCert), newCertPath);
 
-    //Receive the new one
-    result = cl.receiveFile(newCertPath, cl.getSocket(),940);
-    if(result) std::cout << "New certificate received!" << std::endl;
+        //Send That file
+        result = cl.sendFile(newCertPath, cl.getSocket());
+        if (result) std::cout << "new Certificate sent!" << std::endl;
 
-    //read it from file
-    newCert = readCertificateFromFile(newCertPath);
+        //Receive the new one
+        result = cl.receiveFile(newCertPath, cl.getSocket(), 940);
+        if (result) std::cout << "New certificate received!" << std::endl;
 
-    if(CertificateHandler::checkCertificate(newCert,*mSelfSignedCertificate))
-        //add it to CA
-        CA.push_back(newCert);
-    else
-        std::cout << "The received certificate is not correct!" << std::endl;
+        //read it from file
+        newCert = readCertificateFromFile(newCertPath);
+
+        if (CertificateHandler::checkCertificate(newCert, *mSelfSignedCertificate))
+            //add it to CA
+            CA.push_back(newCert);
+        else
+            std::cout << "The received certificate is not correct!" << std::endl;
+    }
 
     //Delete Temp files
     remove( selfSignedPath.c_str() );

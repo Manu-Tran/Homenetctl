@@ -35,6 +35,8 @@ public:
 
     //SAVE & LOAD
     void AddInCA(CertificateHandler::X509Ptr cert);
+    void writeCertificateToFile(CertificateHandler::X509Ptr cert, std::string path);
+    Poco::Crypto::X509Certificate readCertificateFromFile(std::string path);
 
     //CONSTRUCTORS
     Equipment();

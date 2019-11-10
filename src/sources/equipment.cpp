@@ -67,6 +67,22 @@ void Equipment::AddInCA(CertificateHandler::X509Ptr cert)
     CA.push_back(*cert);
 }
 
+void Equipment::writeCertificateToFile(CertificateHandler::X509Ptr cert, std::string path)
+{
+    std::vector<Poco::Crypto::X509Certificate> v;
+    v.push_back(*cert);
+
+    Poco::Crypto::X509Certificate::writePEM(path,v);
+}
+
+Poco::Crypto::X509Certificate Equipment::readCertificateFromFile(std::string path)
+{
+    std::vector<Poco::Crypto::X509Certificate> v;
+    v = Poco::Crypto::X509Certificate::readPEM(path);
+
+    return  v[0];
+}
+
 //DISPLAY
 /**
  * Displays CA

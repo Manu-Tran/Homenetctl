@@ -30,17 +30,21 @@ private:
 
 public:
 
-    //Create a new certificate from a received one
-    Poco::Crypto::X509Certificate newCertificate(CertificateHandler::X509Ptr cert, std::string clientName);
-
-    //SAVE & LOAD
-    void AddInCA(CertificateHandler::X509Ptr cert);
-    void writeCertificateToFile(CertificateHandler::X509Ptr cert, std::string path);
-    Poco::Crypto::X509Certificate readCertificateFromFile(std::string path);
-
     //CONSTRUCTORS
     Equipment();
     Equipment(std::string id, int port);
+
+    //Create a new certificate from a received one
+    Poco::Crypto::X509Certificate newCertificate(Poco::Crypto::X509Certificate cert, std::string clientName);
+
+    //SAVE & LOAD
+    void AddInCA(CertificateHandler::X509Ptr cert);
+    void writeCertificateToFile(Poco::Crypto::X509Certificate cert, std::string path);
+    Poco::Crypto::X509Certificate readCertificateFromFile(std::string path);
+
+    //ADD New equipment
+    void addEquipmentServerSide(const char * serverAddress);
+    void addEquipmentClientSide(const char * serverAddress);
 
     //DISPLAY
     void display_DA();

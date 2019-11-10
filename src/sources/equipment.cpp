@@ -44,10 +44,10 @@ Equipment::Equipment(std::string id, int port)
  * @param clientName
  * @return
  */
-Poco::Crypto::X509Certificate Equipment::newCertificate(CertificateHandler::X509Ptr cert, std::string clientName)
+Poco::Crypto::X509Certificate Equipment::newCertificate(Poco::Crypto::X509Certificate cert, std::string clientName)
 {
     //get key from certificate
-    RSAKeyPair clientKey(clientName, *cert);
+    RSAKeyPair clientKey(clientName, cert);
 
     //create a new one and sign it using my key
     auto cert1 = CertificateHandler::sign(mId,Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()),clientName,Poco::Crypto::EVPPKey(clientKey.loadKeys(false).get()),30);
@@ -67,10 +67,10 @@ void Equipment::AddInCA(CertificateHandler::X509Ptr cert)
     CA.push_back(*cert);
 }
 
-void Equipment::writeCertificateToFile(CertificateHandler::X509Ptr cert, std::string path)
+void Equipment::writeCertificateToFile(Poco::Crypto::X509Certificate cert, std::string path)
 {
     std::vector<Poco::Crypto::X509Certificate> v;
-    v.push_back(*cert);
+    v.push_back(cert);
 
     Poco::Crypto::X509Certificate::writePEM(path,v);
 }
@@ -78,7 +78,9 @@ void Equipment::writeCertificateToFile(CertificateHandler::X509Ptr cert, std::st
 Poco::Crypto::X509Certificate Equipment::readCertificateFromFile(std::string path)
 {
     std::vector<Poco::Crypto::X509Certificate> v;
+    std::cout << "created vector" << std::endl;
     v = Poco::Crypto::X509Certificate::readPEM(path);
+    std::cout << "got the certificate in the rector" << std::endl;
 
     return  v[0];
 }

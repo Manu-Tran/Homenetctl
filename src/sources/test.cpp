@@ -127,7 +127,7 @@ bool TestHandler::test6()
     std::string nom = "B";
     auto selfsigncert = CertificateHandler::selfSign(nom, keyClient,10);
 
-    Poco::Crypto::X509Certificate test = A.newCertificate(selfsigncert,nom);
+    Poco::Crypto::X509Certificate test = A.newCertificate(*selfsigncert,nom);
 
     std::vector<Poco::Crypto::X509Certificate> truc;
     truc.push_back(test);
@@ -138,6 +138,19 @@ bool TestHandler::test6()
     else
         std::cout << "you suck" << std::endl;
 
+
+    return true;
+}
+
+bool TestHandler::test7()
+{
+    RSAKeyPair b;
+    b.generate_key("b");
+    Poco::Crypto::EVPPKey keyClient = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_b.pem", "/tmp/homenetctl/privateKey_b.pem");
+    std::string nom = "B";
+    auto selfsigncert = CertificateHandler::selfSign(nom, keyClient,10);
+
+    std::cout << (*selfsigncert).commonName() << std::endl;
 
     return true;
 }

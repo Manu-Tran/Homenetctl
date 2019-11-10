@@ -70,14 +70,9 @@ int main(int argc, char* argv[])
                 addr = argv[i+1];
                 port = std::stoi(argv[i+2]);
 
-                Server serv(addr, port);
-                std::cout << "server created at address: " << addr << " and port: " << port << std::endl;
-                serv.listenForConnectionRequests();
-                std::cout << "server connected" << std::endl;
-                result = serv.receiveFile("/home/romain/Documents/tests/certs/serverRecv.txt",serv.getNewSocket());
-                if(result) std::cout << "server file received" << std::endl;
-                result = serv.sendFile("/home/romain/Documents/tests/certs/serverSend.txt", serv.getNewSocket());
-                if(result) std::cout << "server file sent" << std::endl;
+                Equipment A("A",port);
+                A.addEquipmentServerSide(addr);
+
                 return 0;
 
             } else {
@@ -91,14 +86,8 @@ int main(int argc, char* argv[])
                 addr = argv[i+1];
                 port = std::stoi(argv[i+2]);
 
-                Client cl(addr,port);
-                std::cout << "client created" << std::endl;
-                cl.connectToServer();
-                std::cout << "client connected" << std::endl;
-                result = cl.sendFile("/home/romain/Documents/tests/certs/clientSend.txt", cl.getSocket());
-                if(result) std::cout << "client file sent" << std::endl;
-                result = cl.receiveFile("/home/romain/Documents/tests/certs/clientRecv.txt", cl.getSocket());
-                if(result) std::cout << "client file received" << std::endl;
+                Equipment B("B",port);
+                B.addEquipmentClientSide(addr);
 
             } else {
                 std::cerr << "--client option requires two arguments." << std::endl;

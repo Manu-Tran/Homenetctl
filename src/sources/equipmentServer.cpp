@@ -32,32 +32,35 @@ void Equipment::addEquipmentServerSide(const char * serverAddress)
     if(result) std::cout << "server file sent" << std::endl;
 
     //Delete Temp file
-    //if(remove( selfSignedPath.c_str() ) != 0)
-    //    std::cout << "error deleting temp file" << std::endl;
-    //else
-    //    std::cout << "Temp file successfully deleted!" << std::endl;
+    if(remove( selfSignedPath.c_str() ) != 0)
+        std::cout << "error deleting temp file" << std::endl;
+    else
+        std::cout << "Temp file successfully deleted!" << std::endl;
 
     //read received cert from file
-    //Poco::Crypto::X509Certificate newCert = readCertificateFromFile(receivedSelfSignedPath);
-    //std::cout << "read selfsigned cert from file" << std::endl;
+    Poco::Crypto::X509Certificate newCert = readCertificateFromFile(receivedSelfSignedPath);
+    std::cout << "read selfsigned cert from file" << std::endl;
 
     //create new certificate
-    //newCert = newCertificate(newCert,newCert.commonName());
+    newCert = newCertificate(newCert,newCert.commonName());
 
     //Write new certificate to file
-    //this->writeCertificateToFile((newCert),newCertPath);
+    this->writeCertificateToFile((newCert),newCertPath);
 
     //receive new one from server
-    //result = serv.receiveFile(receivedNewCertPath, serv.getNewSocket());
-    //if(result) std::cout << "New certificate received!" << std::endl;
+    result = serv.receiveFile(receivedNewCertPath, serv.getNewSocket());
+    if(result) std::cout << "New certificate received!" << std::endl;
 
     //send it to server
-    //result = serv.sendFile(newCertPath, serv.getNewSocket());
-    //if(result) std::cout << "server file sent" << std::endl;
+    result = serv.sendFile(newCertPath, serv.getNewSocket());
+    if(result) std::cout << "server file sent" << std::endl;
 
     //read it from file
-    //newCert = readCertificateFromFile(receivedNewCertPath);
+    newCert = readCertificateFromFile(receivedNewCertPath);
 
-    //add it to CA
-    //CA.push_back(newCert);
+    if(CertificateHandler::checkCertificate(newCert,*mSelfSignedCertificate))
+        //add it to CA
+        CA.push_back(newCert);
+    else
+        std::cout << "The received certificate is not correct!" << std::endl;
 }

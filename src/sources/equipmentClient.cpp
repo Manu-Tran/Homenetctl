@@ -41,29 +41,32 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
     std::cout << "read selfsigned cert from file" << std::endl;
 
     //Create the new certificate from this file --> newCertfificate()
-    //newCert = newCertificate(newCert,newCert.commonName());
+    newCert = newCertificate(newCert,newCert.commonName());
 
     //Write new certificate to file
-    //this->writeCertificateToFile((newCert),newCertPath);
+    this->writeCertificateToFile((newCert),newCertPath);
 
     //Send That file
-    //result = cl.sendFile(newCertPath, cl.getSocket());
-    //if(result) std::cout << "new Certificate sent!" << std::endl;
+    result = cl.sendFile(newCertPath, cl.getSocket());
+    if(result) std::cout << "new Certificate sent!" << std::endl;
 
     //delete it from local
-    //if(remove( newCertPath.c_str() ) != 0)
-    //    std::cout << "error deleting temp file" << std::endl;
-    //else
-    //    std::cout << "Temp file successfully deleted!" << std::endl;
+    if(remove( newCertPath.c_str() ) != 0)
+        std::cout << "error deleting temp file" << std::endl;
+    else
+        std::cout << "Temp file successfully deleted!" << std::endl;
 
     //Receive the new one
-    //result = cl.receiveFile(newCertPath, cl.getSocket());
-    //if(result) std::cout << "New certificate received!" << std::endl;
+    result = cl.receiveFile(newCertPath, cl.getSocket());
+    if(result) std::cout << "New certificate received!" << std::endl;
 
     //read it from file
-    //newCert = readCertificateFromFile(newCertPath);
+    newCert = readCertificateFromFile(newCertPath);
 
-    //Add it to CA
-    //CA.push_back(newCert);
+    if(CertificateHandler::checkCertificate(newCert,*mSelfSignedCertificate))
+        //add it to CA
+        CA.push_back(newCert);
+    else
+        std::cout << "The received certificate is not correct!" << std::endl;
 
 }

@@ -73,6 +73,11 @@ int main(int argc, char* argv[])
                 Equipment A("A",port);
                 A.addEquipmentServerSide(addr);
 
+                if(CertificateHandler::checkCertificateChain(A.getCA(),A.getSelfSignedCertificate()))
+                    std::cout << "gg" << std::endl;
+                else
+                    std::cout << "fromage" << std::endl;
+
                 return 0;
 
             } else {

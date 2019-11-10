@@ -18,7 +18,7 @@ std::string Socket::readFile(std::string path)
     std::string line, buff;
     std::ifstream file(path);
     while (std::getline(file, line))
-        buff += line;
+        buff += line + "\n";
     return buff;
 }
 
@@ -47,14 +47,13 @@ bool Socket::sendFile(std::string path, int socket)
 bool Socket::receiveFile(std::string path, int socket)
 {
     int valread;
-    size_t len = 924;
-    char buffer[924];
+    size_t len = 940;
+    char buffer[940];
     std::ofstream myfile;
     myfile.open(path);
 
 
     valread = read(socket, buffer, len);
-    buffer[strlen(buffer)-2] = (char) '\0';
 
 
     if (valread == -1) {

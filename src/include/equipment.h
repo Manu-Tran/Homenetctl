@@ -56,6 +56,7 @@ public:
     RSAKeyPair getKeys();
     int getPort();
     Poco::Crypto::X509Certificate getSelfSignedCertificate();
+    std::vector<Poco::Crypto::X509Certificate> getCA() {return CA;}
 
     //SETTERS
     void setName(std::string newId);

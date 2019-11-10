@@ -78,9 +78,7 @@ void Equipment::writeCertificateToFile(Poco::Crypto::X509Certificate cert, std::
 Poco::Crypto::X509Certificate Equipment::readCertificateFromFile(std::string path)
 {
     std::vector<Poco::Crypto::X509Certificate> v;
-    std::cout << "created vector" << std::endl;
     v = Poco::Crypto::X509Certificate::readPEM(path);
-    std::cout << "got the certificate in the rector" << std::endl;
 
     return  v[0];
 }
@@ -131,6 +129,18 @@ void Equipment::display()
 {
     display_CA();
     display_DA();
+}
+
+int Equipment::getFileSize(std::string path)
+{
+    std::ifstream file(path);
+    // get length of file:
+    file.seekg (0, file.end);
+    int length = file.tellg();
+    file.seekg (0, file.beg);
+    file.close();
+
+    return length;
 }
 
 //GETTERS

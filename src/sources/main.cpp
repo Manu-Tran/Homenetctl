@@ -53,7 +53,6 @@ int main(int argc, char* argv[])
         show_usage(argv[0]);
         return 1;
     }
-    bool result = false;
     std::vector <std::string> sources;
     int port;
     const char * addr;
@@ -73,10 +72,16 @@ int main(int argc, char* argv[])
                 Equipment A("A",port);
                 A.addEquipmentServerSide(addr);
 
-                if(CertificateHandler::checkCertificateChain(A.getCA(),A.getSelfSignedCertificate()))
-                    std::cout << "gg" << std::endl;
-                else
-                    std::cout << "fromage" << std::endl;
+                /*
+                //Create Server socket, bind it, listen and accept connections
+                Server serv(addr, port);
+                std::cout << "server created at address: " << addr << " and port: " << port << std::endl;
+                serv.listenForConnectionRequests();
+                std::cout << "server connected & listening:" << std::endl;
+
+                int size = serv.receiveSize(serv.getNewSocket());
+                std::cout << size << std::endl;
+                */
 
                 return 0;
 
@@ -93,6 +98,17 @@ int main(int argc, char* argv[])
 
                 Equipment B("B",port);
                 B.addEquipmentClientSide(addr);
+
+                /*
+                //Create Client socket and connect to server using address and port
+                Client cl(addr,port);
+                std::cout << "client created" << std::endl;
+                cl.connectToServer();
+                std::cout << "client connected" << std::endl;
+
+                cl.sendSize(cl.getSocket(),1024);
+                std::cout << "size sent" << std::endl;
+                */
 
             } else {
                 std::cerr << "--client option requires two arguments." << std::endl;

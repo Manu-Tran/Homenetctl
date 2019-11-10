@@ -2,6 +2,7 @@
 // Created by romain on 02/11/2019.
 //
 
+#include <sstream>
 #include "Socket.h"
 
 //"/home/romain/Documents/tests/clientSend.txt"
@@ -38,17 +39,26 @@ bool Socket::sendFile(std::string path, int socket)
         return false;
 }
 
+bool Socket::sendSize(int socket, int size)
+{
+    int valread;
+
+    valread = send(socket, std::to_string(size).c_str(), strlen(std::to_string(size).c_str()), 0);
+
+    return valread != -1;
+}
+
 /**
  * Receives file and stores it at given path
  * @param path
  * @param socket
  * @return
  */
-bool Socket::receiveFile(std::string path, int socket)
+bool Socket::receiveFile(std::string path, int socket, int size)
 {
     int valread;
-    size_t len = 940;
-    char buffer[940];
+    size_t len = size;
+    char buffer[len];
     std::ofstream myfile;
     myfile.open(path);
 
@@ -66,4 +76,15 @@ bool Socket::receiveFile(std::string path, int socket)
         myfile.close();
         return true;
     }
+}
+
+int Socket::receiveSize(int socket)
+{
+    int size = 0;
+    char buffer[20];
+    read(socket, buffer, strlen(buffer));
+
+    std::stringstream(std::string(buffer)) >> size ;
+
+    return size;
 }

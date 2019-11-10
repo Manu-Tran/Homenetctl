@@ -26,14 +26,8 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
     result = cl.sendFile(selfSignedPath, cl.getSocket());
     if(result) std::cout << "Client Self Signed Certificate sent!" << std::endl;
 
-    //Delete temp file
-    //if(remove( selfSignedPath.c_str() ) != 0)
-    //    std::cout << "error deleting temp file" << std::endl;
-    //else
-    //    std::cout << "Temp file successfully deleted!" << std::endl;
-
     //Receive new certificate from server INTO TEMP FILE
-    result = cl.receiveFile(receivedSelfSignedPath, cl.getSocket());
+    result = cl.receiveFile(receivedSelfSignedPath, cl.getSocket(),940);
     if(result) std::cout << "Server self signed certificate received!" << std::endl;
 
     //read temp file to a certificate --> readCertificateFromFile()
@@ -50,14 +44,8 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
     result = cl.sendFile(newCertPath, cl.getSocket());
     if(result) std::cout << "new Certificate sent!" << std::endl;
 
-    //delete it from local
-    if(remove( newCertPath.c_str() ) != 0)
-        std::cout << "error deleting temp file" << std::endl;
-    else
-        std::cout << "Temp file successfully deleted!" << std::endl;
-
     //Receive the new one
-    result = cl.receiveFile(newCertPath, cl.getSocket());
+    result = cl.receiveFile(newCertPath, cl.getSocket(),940);
     if(result) std::cout << "New certificate received!" << std::endl;
 
     //read it from file
@@ -68,5 +56,10 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
         CA.push_back(newCert);
     else
         std::cout << "The received certificate is not correct!" << std::endl;
+
+    //Delete Temp files
+    remove( selfSignedPath.c_str() );
+    remove( receivedSelfSignedPath.c_str() );
+    remove( newCertPath.c_str() );
 
 }

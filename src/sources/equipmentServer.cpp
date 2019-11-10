@@ -24,18 +24,12 @@ void Equipment::addEquipmentServerSide(const char * serverAddress)
     this->writeCertificateToFile(*mSelfSignedCertificate,selfSignedPath);
 
     //Receive certificate from Client
-    result = serv.receiveFile(receivedSelfSignedPath,serv.getNewSocket());
+    result = serv.receiveFile(receivedSelfSignedPath,serv.getNewSocket(),940);
     if(result) std::cout << "server file received" << std::endl;
 
     //send selfsigned certificate to client
     result = serv.sendFile(selfSignedPath, serv.getNewSocket());
     if(result) std::cout << "server file sent" << std::endl;
-
-    //Delete Temp file
-    if(remove( selfSignedPath.c_str() ) != 0)
-        std::cout << "error deleting temp file" << std::endl;
-    else
-        std::cout << "Temp file successfully deleted!" << std::endl;
 
     //read received cert from file
     Poco::Crypto::X509Certificate newCert = readCertificateFromFile(receivedSelfSignedPath);
@@ -48,7 +42,7 @@ void Equipment::addEquipmentServerSide(const char * serverAddress)
     this->writeCertificateToFile((newCert),newCertPath);
 
     //receive new one from server
-    result = serv.receiveFile(receivedNewCertPath, serv.getNewSocket());
+    result = serv.receiveFile(receivedNewCertPath, serv.getNewSocket(),940);
     if(result) std::cout << "New certificate received!" << std::endl;
 
     //send it to server
@@ -63,4 +57,10 @@ void Equipment::addEquipmentServerSide(const char * serverAddress)
         CA.push_back(newCert);
     else
         std::cout << "The received certificate is not correct!" << std::endl;
+
+    //Delete Temp files
+    remove( selfSignedPath.c_str() );
+    remove( receivedSelfSignedPath.c_str() );
+    remove( newCertPath.c_str() );
+    remove( receivedNewCertPath.c_str() );
 }

@@ -51,6 +51,8 @@ public:
     void display_CA();
     void display(); //calls on the previous 2
 
+    int getFileSize(std::string path);
+
     //GETTERS
     std::string getName();
     RSAKeyPair getKeys();

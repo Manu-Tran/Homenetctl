@@ -32,20 +32,15 @@ std::string Socket::readFile(std::string path)
 bool Socket::sendFile(std::string path, int socket)
 {
     std::string fileContents = readFile(path);
+    std::string contentSize = std::to_string(fileContents.length());
+
+
+    send(socket, contentSize.c_str(), 20, 0);
     if (!fileContents.empty()) {
         send(socket, fileContents.c_str(), strlen(fileContents.c_str()), 0);
         return true;
     } else
         return false;
-}
-
-bool Socket::sendSize(int socket, int size)
-{
-    int valread;
-
-    valread = send(socket, std::to_string(size).c_str(), strlen(std::to_string(size).c_str()), 0);
-
-    return valread != -1;
 }
 
 /**
@@ -54,15 +49,28 @@ bool Socket::sendSize(int socket, int size)
  * @param socket
  * @return
  */
-bool Socket::receiveFile(std::string path, int socket, int size)
+bool Socket::receiveFile(std::string path, int socket)
 {
     int valread;
-    size_t len = size;
-    char buffer[len];
+    int size_int;
+    size_t len;
+
+    // Hardvalue, but just to store and int in base 10
+    char sizeBuffer[20];
+
     std::ofstream myfile;
     myfile.open(path);
 
-
+    read(socket, sizeBuffer, 20);
+    std::stringstream(std::string(sizeBuffer)) >> size_int ;
+    if (size_int < 940) {
+        size_int = 940;
+    }
+    if (size_int > 940000) {
+        size_int = 940000;
+    }
+    len = (size_t) size_int;
+    char buffer[len];
     valread = read(socket, buffer, len);
 
 
@@ -78,15 +86,5 @@ bool Socket::receiveFile(std::string path, int socket, int size)
     }
 }
 
-int Socket::receiveSize(int socket)
-{
-    int size = 0;
-    char buffer[20];
-    read(socket, buffer, strlen(buffer));
-
-    std::stringstream(std::string(buffer)) >> size ;
-
-    return size;
-}
 
 

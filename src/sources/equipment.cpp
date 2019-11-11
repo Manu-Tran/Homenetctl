@@ -10,16 +10,12 @@
  * @param port
  */
 Equipment::Equipment(std::string id, int port)
+    : mId(id)
+    , mKeys(mId)
 {
     //ID and Port are gotten from user input
-    mId=id;
     pathCA = "/tmp/homenetctl/certs/" + mId + ".pem";
     mPort=port;
-
-    //Key generation
-    mKeys.generate_key(id);
-
-    Poco::Crypto::EVPPKey evpkey = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_" + id + ".pem", "/tmp/homenetctl/privateKey_" + id + ".pem");
 
     //Generate self signed certificate
     mSelfSignedCertificate = CertificateHandler::selfSign(mId, Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()), 30);

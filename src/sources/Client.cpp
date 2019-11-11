@@ -58,5 +58,33 @@ bool Client::connectToServer()
     return true;
 }
 
+bool Client::clientAcceptAccess(int socket, std::string name)
+{
+    int len = 1;
+    char buffer[1];
+    char userInput;
+
+    send(socket,name.c_str(),strlen(name.c_str()),0);
+
+    read(socket,buffer,len);
+
+    std::cout << "Equipment " << std::string(buffer) << " has accepted your request, would you like to proceed? [y/n]" << std::endl;
+
+    while(true) {
+        std::cin >> userInput;
+
+        switch (userInput) {
+            case 'y' :
+                std::cout << "We will now proceed" << std::endl;
+                return true;
+            case 'n' :
+                std::cout << "Okay well too bad" << std::endl;
+                return false;
+            default:
+                std::cout << "Please enter a valid answer: " << std::endl;
+        }
+    }
+}
+
 int Client::getSocket() { return mSocket; }
 

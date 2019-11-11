@@ -43,7 +43,7 @@ public:
     Poco::Crypto::X509Certificate readCertificateFromFile(std::string path);
 
     //ADD New equipment
-    void addEquipmentServerSide(const char * serverAddress);
+    void addEquipmentServerSide();
     void addEquipmentClientSide(const char * serverAddress);
 
     //DISPLAY

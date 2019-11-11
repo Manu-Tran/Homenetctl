@@ -5,6 +5,10 @@
 #include <Client.h>
 #include "equipment.h"
 
+/**
+ * Adding of a new equipment to the domestic network, client side
+ * @param serverAddress
+ */
 void Equipment::addEquipmentClientSide(const char * serverAddress)
 {
     bool result;
@@ -17,6 +21,9 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
     Client cl(serverAddress,mPort);
     std::cout << "client created" << std::endl;
     result = cl.connectToServer();
+
+    if(result)
+        result = cl.clientAcceptAccess(cl.getSocket(),mId);
 
     if(result) {
         std::cout << "client connected" << std::endl;

@@ -5,7 +5,11 @@
 #include <Server.h>
 #include "equipment.h"
 
-void Equipment::addEquipmentServerSide(const char * serverAddress)
+/**
+ * Adding of a new equipment to the domestic network, server side
+ * @param serverAddress
+ */
+void Equipment::addEquipmentServerSide()
 {
     bool result;
     std::string selfSignedPath = "/tmp/homenetctl/certs/server/serverSelfSignedCert.pem";
@@ -13,11 +17,14 @@ void Equipment::addEquipmentServerSide(const char * serverAddress)
     std::string newCertPath = "/tmp/homenetctl/certs/server/newCert.pem";
     std::string receivedNewCertPath = "/tmp/homenetctl/certs/server/receivedNewCert.pem";
 
-
     //Create Server socket, bind it, listen and accept connections
-    Server serv(serverAddress, mPort);
-    std::cout << "server created at address: " << serverAddress << " and port: " << mPort << std::endl;
+    Server serv(mPort);
+    std::cout << "server created and listening to port: " << mPort << std::endl;
     result = serv.listenForConnectionRequests();
+
+    //poput to accept connection between devices
+    if(result)
+        result = serv.serverAcceptAccess(serv.getNewSocket(),mId);
 
     if(result) {
         std::cout << "server connected & listening:" << std::endl;

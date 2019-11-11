@@ -65,28 +65,16 @@ int main(int argc, char* argv[])
             show_usage(argv[0]);
             return 0;
         } else if ((arg == "-s") || (arg == "--server")) {
-            if (i + 2 < argc) {
-                addr = argv[i+1];
-                port = std::stoi(argv[i+2]);
+            if (i + 1 < argc) {
+                port = std::stoi(argv[i+1]);
 
                 Equipment A("A",port);
-                A.addEquipmentServerSide(addr);
-
-                /*
-                //Create Server socket, bind it, listen and accept connections
-                Server serv(addr, port);
-                std::cout << "server created at address: " << addr << " and port: " << port << std::endl;
-                serv.listenForConnectionRequests();
-                std::cout << "server connected & listening:" << std::endl;
-
-                int size = serv.receiveSize(serv.getNewSocket());
-                std::cout << size << std::endl;
-                */
+                A.addEquipmentServerSide();
 
                 return 0;
 
             } else {
-                  std::cerr << "--server option requires two arguments." << std::endl;
+                  std::cerr << "--server option requires one argument." << std::endl;
                 return 1;
             }
 
@@ -98,17 +86,6 @@ int main(int argc, char* argv[])
 
                 Equipment B("B",port);
                 B.addEquipmentClientSide(addr);
-
-                /*
-                //Create Client socket and connect to server using address and port
-                Client cl(addr,port);
-                std::cout << "client created" << std::endl;
-                cl.connectToServer();
-                std::cout << "client connected" << std::endl;
-
-                cl.sendSize(cl.getSocket(),1024);
-                std::cout << "size sent" << std::endl;
-                */
 
             } else {
                 std::cerr << "--client option requires two arguments." << std::endl;

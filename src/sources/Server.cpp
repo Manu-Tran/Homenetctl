@@ -9,7 +9,7 @@
  * @param addr
  * @param port
  */
-Server::Server(const char * addr, int port)
+Server::Server(int port)
 {
     int opt = 1;
 
@@ -27,7 +27,10 @@ Server::Server(const char * addr, int port)
         exit(EXIT_FAILURE);
     }
     mServerAddress.sin_family = AF_INET;
-    mServerAddress.sin_addr.s_addr = inet_addr(addr);
+
+    //Any interface is good, no need to setup a particular IP
+    //mServerAddress.sin_addr.s_addr = inet_addr(addr);
+    mServerAddress.sin_addr.s_addr = INADDR_ANY;
     mServerAddress.sin_port = htons( port );
 
     if (bind(mSocket, (struct sockaddr *)&mServerAddress,
@@ -46,7 +49,6 @@ bool Server::listenForConnectionRequests()
 {
 
     int addrlen = sizeof(mServerAddress);
-    char userInput;
 
     if (listen(mSocket, 3) < 0)
     {
@@ -62,28 +64,35 @@ bool Server::listenForConnectionRequests()
     }
     else
     {
-        std::cout << "A new Equipment is trying to connect to you, are you okay with that? [y/n]" << std::endl;
-
-        while(true) {
-            std::cin >> userInput;
-
-            switch (userInput) {
-                case 'y' :
-                    std::cout << "We will now proceed on adding the new Equipment" << std::endl;
-                    return true;
-                    break;
-                case 'n' :
-                    std::cout << "Okay well too bad" << std::endl;
-                    return false;
-                default:
-                    std::cout << "Please enter a valid answer: " << std::endl;
-
-
-            }
-        }
-
+        return true;
     }
 
+}
+
+bool Server::serverAcceptAccess(int socket, std::string name)
+{
+    int len = 1;
+    char buffer[1];
+    char userInput;
+
+    read(socket,buffer,len);
+
+    std::cout << "Equipment " << std::string(buffer) << " is trying to connect to you, are you okay with that? [y/n]" << std::endl;
+
+    while(true) {
+        std::cin >> userInput;
+
+        switch (userInput) {
+            case 'y' :
+                send(socket,name.c_str(),strlen(name.c_str()),0);
+                return true;
+            case 'n' :
+                std::cout << "Okay well too bad" << std::endl;
+                return false;
+            default:
+                std::cout << "Please enter a valid answer: " << std::endl;
+        }
+    }
 }
 
 int Server::getNewSocket() { return mNew_socket; }

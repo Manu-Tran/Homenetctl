@@ -19,6 +19,7 @@ class TestHandler {
     static bool test4();
     static bool test5();
     static bool test6();
+    static bool test7();
 
 public :
     static void launchTests(){
@@ -27,7 +28,8 @@ public :
         //std::cout << "Test 3... " << (test3() ? "Ok" : "Failed") << std::endl;
         //std::cout << "Test 4... " << (test4() ? "Ok" : "Failed") << std::endl;
         //std::cout << "Test 5... " << (test5() ? "Ok" : "Failed") << std::endl;
-        std::cout << "Test 6... " << (test6() ? "Ok" : "Failed") << std::endl;
+        //std::cout << "Test 6... " << (test6() ? "Ok" : "Failed") << std::endl;
+        std::cout << "Test 7... " << (test7() ? "Ok" : "Failed") << std::endl;
 
     }
 

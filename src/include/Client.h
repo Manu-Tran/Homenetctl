@@ -24,6 +24,7 @@ public:
 
     Client(const char * serverAddress, int port);
     bool connectToServer();
+    bool clientAcceptAccess(int socket, std::string name);
     int getSocket();
 
 };

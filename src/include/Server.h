@@ -24,8 +24,9 @@ private:
 
 public:
 
-    Server(const char * add, int port);
+    Server(int port);
     bool listenForConnectionRequests();
+    bool serverAcceptAccess(int socket, std::string name);
     int getNewSocket();
 
 };

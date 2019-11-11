@@ -55,7 +55,7 @@ CertificateHandler::CertificateHandler(EVP_PKEY * privKey, std::string name, std
 
 }
 
-/* Add a certificate to the tree data structure
+/** Add a certificate to the tree data structure
  * @params cert The certificate to add
  * @params signerKey The public of the signer of the added certificate
  */
@@ -162,7 +162,7 @@ CertificateHandler::X509Ptr CertificateHandler::selfSign(std::string name, EVP_P
     return CertificateHandler::sign(name, keyPair, name, keyPair, validityDays);
 }
 
-/* Check whether the client certificate has been signed by our
+/** Check whether the client certificate has been signed by our
  * @param Client certificate
  * @return result of the verification
  */
@@ -184,7 +184,7 @@ bool CertificateHandler::checkCertificateChain( Poco::Crypto::X509Certificate::L
 }
 
 
-/* Check whether the client certificate has been signed by our
+/** Check whether the client certificate has been signed by our
  * @param Client certificate
  * @return result of the verification
  */
@@ -193,7 +193,7 @@ bool CertificateHandler::checkCertificate( Poco::Crypto::X509Certificate clientC
     return clientCert.issuedBy(selfSignedCert);
 }
 
-/* Return the string value of the public key in the X509Certificate
+/** Return the string value of the public key in the X509Certificate
  * @param certificate's key to print
  * @return Public key in PEM format in a string
  */

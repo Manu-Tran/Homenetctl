@@ -4,7 +4,11 @@
 
 #include "equipment.h"
 
-//CONSTRUCTORS
+/**
+ * Constructor for class Equipment. Handles the generation of selfsigned certificate and the first entry in CA
+ * @param id
+ * @param port
+ */
 Equipment::Equipment(std::string id, int port)
 {
     //ID and Port are gotten from user input
@@ -29,16 +33,21 @@ Equipment::Equipment(std::string id, int port)
         std::cout << "error in the selfsigned certificate" << std::endl;
         exit(EXIT_FAILURE);
     } else {
-        saveInCA(*(mSelfSignedCertificate),pathCA);
+        AddInCA(mSelfSignedCertificate);
     }
 
 }
 
-//create a new certficate from a received certificate
-Poco::Crypto::X509Certificate Equipment::newCertificate(std::shared_ptr<Poco::Crypto::X509Certificate> cert, std::string clientName)
+/**
+ * Creates a new certificate using a self signed certificate (extracts the public key) and his own certificate.
+ * @param cert
+ * @param clientName
+ * @return
+ */
+Poco::Crypto::X509Certificate Equipment::newCertificate(Poco::Crypto::X509Certificate cert, std::string clientName)
 {
     //get key from certificate
-    RSAKeyPair clientKey(clientName, *cert);
+    RSAKeyPair clientKey(clientName, cert);
 
     //create a new one and sign it using my key
     auto cert1 = CertificateHandler::sign(mId,Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()),clientName,Poco::Crypto::EVPPKey(clientKey.loadKeys(false).get()),30);
@@ -47,21 +56,37 @@ Poco::Crypto::X509Certificate Equipment::newCertificate(std::shared_ptr<Poco::Cr
     return *cert1;
 }
 
-
-//SAVE & LOAD
-void Equipment::saveInCA(Poco::Crypto::X509Certificate cert, std::string path)
+/**
+ * Adds an equipment in CA with the shape of a triplet (ID,PublicKey,Certificate signed by this)
+ * @param id
+ * @param pubkey
+ * @param cert
+ */
+void Equipment::AddInCA(CertificateHandler::X509Ptr cert)
 {
-    CA.push_back(cert);
-    Poco::Crypto::X509Certificate::writePEM(path,CA);
-    std::cout << "CA was saved in: " << pathCA << std::endl;
+    CA.push_back(*cert);
 }
 
-std::vector<Poco::Crypto::X509Certificate> Equipment::loadCA()
+void Equipment::writeCertificateToFile(Poco::Crypto::X509Certificate cert, std::string path)
 {
-    return Poco::Crypto::X509Certificate::readPEM(pathCA);
+    std::vector<Poco::Crypto::X509Certificate> v;
+    v.push_back(cert);
+
+    Poco::Crypto::X509Certificate::writePEM(path,v);
+}
+
+Poco::Crypto::X509Certificate Equipment::readCertificateFromFile(std::string path)
+{
+    std::vector<Poco::Crypto::X509Certificate> v;
+    v = Poco::Crypto::X509Certificate::readPEM(path);
+
+    return  v[0];
 }
 
 //DISPLAY
+/**
+ * Displays CA
+ */
 void Equipment::display_CA()
 {
     std::string certs;
@@ -78,6 +103,9 @@ void Equipment::display_CA()
 
     else std::cout << "Unable to open CA file";
 }
+/**
+ * Displays DA
+ */
 void Equipment::display_DA()
 {
     std::string certs;
@@ -94,16 +122,35 @@ void Equipment::display_DA()
 
     else std::cout << "Unable to open DA file";
 }
+/**
+ * Displays both CA and DA
+ */
 void Equipment::display()
 {
     display_CA();
     display_DA();
 }
 
+int Equipment::getFileSize(std::string path)
+{
+    std::ifstream file(path);
+    // get length of file:
+    file.seekg (0, file.end);
+    int length = file.tellg();
+    file.seekg (0, file.beg);
+    file.close();
+
+    return length;
+}
+
 //GETTERS
 std::string Equipment::getName() { return mId; }
 RSAKeyPair Equipment::getKeys() { return mKeys; }
 int Equipment::getPort() { return mPort; }
+/**
+ * This getter is used specifically to get back a certificate and not a shared pointer on one
+ * @return
+ */
 Poco::Crypto::X509Certificate Equipment::getSelfSignedCertificate() { return *mSelfSignedCertificate; }
 
 //SETTERS

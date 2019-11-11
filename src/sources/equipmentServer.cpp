@@ -41,11 +41,11 @@ void Equipment::addEquipmentServerSide()
         if (result) std::cout << "Server self signed certificate sent" << std::endl;
 
         //read received cert from file
-        Poco::Crypto::X509Certificate newCert = readCertificateFromFile(receivedSelfSignedPath);
+        Poco::Crypto::X509Certificate subjectSelfSignedCert = readCertificateFromFile(receivedSelfSignedPath);
         //std::cout << "read selfsigned cert from file" << std::endl;
 
         //create new certificate
-        newCert = newCertificate(newCert, newCert.commonName());
+        Poco::Crypto::X509Certificate newCert = newCertificate(subjectSelfSignedCert, subjectSelfSignedCert.commonName());
 
         //Write new certificate to file
         this->writeCertificateToFile((newCert), newCertPath);
@@ -61,7 +61,7 @@ void Equipment::addEquipmentServerSide()
         //read it from file
         newCert = readCertificateFromFile(receivedNewCertPath);
 
-        if (CertificateHandler::checkCertificate(newCert, *mSelfSignedCertificate))
+        if (CertificateHandler::checkCertificate(newCert, subjectSelfSignedCert))
             //add it to CA
             CA.push_back(newCert);
         else

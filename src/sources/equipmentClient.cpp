@@ -40,18 +40,18 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
         if (result) std::cout << "Server self signed certificate received!" << std::endl;
 
         //read temp file to a certificate --> readCertificateFromFile()
-        Poco::Crypto::X509Certificate newCert = readCertificateFromFile(receivedSelfSignedPath);
+        Poco::Crypto::X509Certificate subjectSelfSignedCert = readCertificateFromFile(receivedSelfSignedPath);
         //std::cout << "read selfsigned cert from file" << std::endl;
 
         //Create the new certificate from this file --> newCertfificate()
-        newCert = newCertificate(newCert, newCert.commonName());
+        Poco::Crypto::X509Certificate newCert = newCertificate(subjectSelfSignedCert, subjectSelfSignedCert.commonName());
 
         //Write new certificate to file
         this->writeCertificateToFile((newCert), newCertPath);
 
         //Send That file
         result = cl.sendFile(newCertPath, cl.getSocket());
-        if (result) std::cout << "new Certificate sent!" << std::endl;
+        if (result) std::cout << "New Certificate sent!" << std::endl;
 
         //Receive the new one
         result = cl.receiveFile(newCertPath, cl.getSocket(), 940);
@@ -60,7 +60,7 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
         //read it from file
         newCert = readCertificateFromFile(newCertPath);
 
-        if (CertificateHandler::checkCertificate(newCert, *mSelfSignedCertificate))
+        if (CertificateHandler::checkCertificate(newCert, subjectSelfSignedCert))
             //add it to CA
             CA.push_back(newCert);
         else

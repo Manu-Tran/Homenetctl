@@ -52,6 +52,7 @@ CertificateHandler::CertificateHandler(EVP_PKEY * privKey, std::string name, std
     // Adding the root node to the indexer
     DevId selfId = DevId("/CN="+name, CertificateHandler::getPublicKey(*selfSignedX509));
     mX509Searcher[DevId(selfId)]=std::weak_ptr<certificate_node>(mSelfSignedCert);
+    mPubKeyIndex.emplace(std::make_pair("/CN="+name, Poco::Crypto::RSAKey(*selfSignedX509.get())));
 
 }
 
@@ -59,7 +60,26 @@ CertificateHandler::CertificateHandler(EVP_PKEY * privKey, std::string name, std
  * @params cert The certificate to add
  * @params signerKey The public of the signer of the added certificate
  */
-void CertificateHandler::addCertificate(X509Ptr cert, Poco::Crypto::RSAKey signerKey){
+bool CertificateHandler::addCertificate(X509Ptr cert){
+    if (!mPubKeyIndex.contains(cert->issuerName())){
+        std::cout << "Signer " + cert->issuerName()+ " key not found, please provide it" << std::endl;
+        return false;
+    }
+    std::shared_ptr<Poco::Crypto::RSAKey> pocoKey = std::make_shared<Poco::Crypto::RSAKey>(Poco::Crypto::RSAKey::KL_2048,Poco::Crypto::RSAKey::EXP_SMALL);
+    std::shared_ptr<Poco::Crypto::RSAKey> issuerKey = std::make_shared<Poco::Crypto::RSAKey>(mPubKeyIndex.at(cert->issuerName()));
+    /* if (!cert->issuedBy(*(sign("foo",Poco::Crypto::EVPPKey(pocoKey.get()) , cert->issuerName().substr(4, cert->issuerName().size()), Poco::Crypto::EVPPKey(issuerKey.get()), 1)))) { */
+    /*     std::cout << "Found keys is not the right one..." << std::endl; */
+        /* return false; */
+    /* } */
+    return(addCertificate(cert, mPubKeyIndex.at(cert->issuerName())));
+
+}
+
+/** Add a certificate to the tree data structure
+ * @params cert The certificate to add
+ * @params signerKey The public of the signer of the added certificate
+ */
+bool CertificateHandler::addCertificate(X509Ptr cert, Poco::Crypto::RSAKey signerKey){
 
     DevId issuer = DevId(cert->issuerName(), CertificateHandler::keyToString(signerKey));
 
@@ -76,9 +96,22 @@ void CertificateHandler::addCertificate(X509Ptr cert, Poco::Crypto::RSAKey signe
 
         // Index the new node
         mX509Searcher[DevId(cert->subjectName(), CertificateHandler::getPublicKey(*cert))]=std::weak_ptr<certificate_node>(newNode);
+        mPubKeyIndex.emplace(std::make_pair(cert->subjectName(),Poco::Crypto::RSAKey(*cert)));
+        std::cout << "Signer" << cert->issuerName() << " Added !"  << std::endl;
+        return true;
     } else {
         std::cout << "Signer not found, cannot be added to the tree" << std::endl;
+        return false;
     }
+}
+
+bool CertificateHandler::isStored(X509Ptr cert){
+    DevId id = getIdFromX509(*cert);
+    return mX509Searcher.contains(id);
+    /* if (mX509Searcher.contains(id)){ */
+        /* return true; */
+    /* } else */
+        /* return false; */
 }
 
 /* Go through the tree starting from a certificate in order to get the chain to the root
@@ -176,6 +209,7 @@ bool CertificateHandler::checkCertificateChain( Poco::Crypto::X509Certificate::L
     Poco::Crypto::X509Certificate::List::iterator itr;
     for (itr = certChain.begin(); (itr+1) != certChain.end() and (itr) != certChain.end(); itr++){
         if (!itr->issuedBy(*(itr+1))){
+            std::cout << "Failed between " + itr->subjectName() + " and "+ (itr+1)->subjectName() << std::endl;;
             status = false;
         }
     }
@@ -215,6 +249,9 @@ std::string CertificateHandler::keyToString(Poco::Crypto::RSAKey key){
     return ss->str();
 }
 
+/** Return a storable string describing the device based on its id
+ * @params id DevId of the device
+ */
 std::string CertificateHandler::getSignatureId(DevId id){
     std::string signature = "";
     if (id.first.size() > 10){
@@ -227,22 +264,80 @@ std::string CertificateHandler::getSignatureId(DevId id){
     return signature;
 }
 
-std::string CertificateHandler::recursionSave(certificate_node cert){
-    std::string res = "";
-    res += CertificateHandler::getSignatureId(CertificateHandler::getIdFromX509(*cert.certificate));
-    res += ";\n";
-    for (auto node : cert.children){
-        res += CertificateHandler::recursionSave(*node);
-        res += ';';
-    }
-}
-
 CertificateHandler::DevId CertificateHandler::getIdFromX509(Poco::Crypto::X509Certificate cert){
     return DevId(cert.subjectName(), CertificateHandler::getPublicKey(cert));
 }
 
-bool CertificateHandler::save(){
-    bool status = false;
+void CertificateHandler::save(){
+    Poco::Crypto::X509Certificate::List certificateList;
 
+    std::deque<std::shared_ptr<certificate_node>> currentDepth;
+    std::deque<std::shared_ptr<certificate_node>> nextDepth;
+    // Dont think we should save the self signed certificate that way
+    /* certificateList.push_back(*mSelfSignedCert->certificate); */
+    for (auto node : mSelfSignedCert->children){
+        currentDepth.push_back(node);
+    }
 
+    while (currentDepth.size()){
+        for (auto node : currentDepth){
+            certificateList.push_back(*node->certificate);
+            for (auto child : node->children){
+                nextDepth.push_back(child);
+            }
+        }
+        currentDepth.swap(nextDepth);
+        nextDepth.clear();
+    }
+    Poco::Crypto::X509Certificate::writePEM(mCertDir / (fs::path) "knownCerts.pem", certificateList);
+    std::cout << "Saving certificates..." << std::endl;
 }
+
+void CertificateHandler::load(){
+    if (fs::exists(mCertDir / (fs::path) "knownCerts.pem")){
+        Poco::Crypto::X509Certificate::List certificateList = Poco::Crypto::X509Certificate::readPEM(mCertDir / (fs::path) "knownCerts.pem");
+        std::cout << "Certificate Loaded, building tree..." << std::endl;
+        X509Ptr x509;
+        for (auto itr(certificateList.begin()); itr != certificateList.end(); itr++){
+            x509 = std::make_shared<Poco::Crypto::X509Certificate>(*itr);
+            this->addCertificate(x509);
+        }
+    } else {
+        std::cout << "knownCerts.pem not found ! Not loading conf..." << std::endl;
+    }
+}
+
+CertificateHandler::X509Ptr CertificateHandler::getSelfSigned(){
+    return mSelfSignedCert->certificate;
+}
+
+/* bool CertificateHandler::save(){ */
+/*     bool status = false; */
+/*     std::deque<std::shared_ptr<certificate_node>> currentDepth; */
+/*     std::string res = ""; */
+/*     std::deque<std::shared_ptr<certificate_node>> nextDepth; */
+
+/*     res += CertificateHandler::getSignatureId(CertificateHandler::getIdFromX509(*mSelfSignedCert->certificate)); */
+/*     res += CertificateHandler::getSignatureId(CertificateHandler::getIdFromX509(*mSelfSignedCert->certificate)); */
+/*     res += ";\n"; */
+/*     for (auto node : mSelfSignedCert->children){ */
+/*         currentDepth.push_back(node); */
+/*     } */
+
+/*     while (currentDepth.size()){ */
+/*         for (auto node : currentDepth){ */
+/*             res += CertificateHandler::getSignatureId(CertificateHandler::getIdFromX509(*node->parent.lock()->certificate)); */
+/*             res += "_"; */
+/*             res += CertificateHandler::getSignatureId(CertificateHandler::getIdFromX509(*node->certificate)); */
+/*             res += ";"; */
+/*             for (auto child : node->children){ */
+/*                 nextDepth.push_back(child); */
+/*             } */
+/*         } */
+/*         currentDepth.swap(nextDepth); */
+/*         nextDepth.clear(); */
+/*         res += "\n"; */
+/*     } */
+
+/*     return status; */
+/* } */

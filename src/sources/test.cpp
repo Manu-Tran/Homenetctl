@@ -42,9 +42,13 @@
 bool TestHandler::test3(){
     RSAKeyPair a;
     a.generate_key("1");
+    a.generate_key("2");
     Poco::Crypto::EVPPKey key = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_1.pem", "/tmp/homenetctl/privateKey_1.pem");
+    Poco::Crypto::EVPPKey key2 = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_2.pem", "/tmp/homenetctl/privateKey_2.pem");
     std::string nom = "name";
-    return CertificateHandler::checkCertificate(*CertificateHandler::selfSign(nom, key, 30), *CertificateHandler::selfSign(nom,key,30));
+    auto b = CertificateHandler::sign(nom, key, nom, key2, 30);
+    return CertificateHandler::checkCertificate(*b, *CertificateHandler::selfSign(nom,key,30));
+    /* return CertificateHandler::checkCertificate(*CertificateHandler::selfSign(nom, key, 30), *CertificateHandler::selfSign(nom,key,30)); */
 }
 
 bool TestHandler::test4(){
@@ -94,7 +98,7 @@ bool TestHandler::test5(){
     Poco::Crypto::EVPPKey key1 = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_1.pem", "/tmp/homenetctl/privateKey_1.pem");
     Poco::Crypto::EVPPKey key2 = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_2.pem", "/tmp/homenetctl/privateKey_2.pem");
     Poco::Crypto::EVPPKey key3 = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_3.pem", "/tmp/homenetctl/privateKey_3.pem");
-    Poco::Crypto::EVPPKey keyServer = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_1.pem", "/tmp/homenetctl/privateKey_4.pem");
+    Poco::Crypto::EVPPKey keyServer = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_4.pem", "/tmp/homenetctl/privateKey_4.pem");
 
     std::string nom = "name";
     std::string nom1 = "name1";
@@ -144,19 +148,66 @@ bool TestHandler::test6()
 
 bool TestHandler::test7()
 {
-    Equipment A("A",1234);
-    //A.display_CA();
+    RSAKeyPair a;
+    a.generate_key("1");
+    a.generate_key("2");
+    a.generate_key("3");
+    a.generate_key("4");
 
-    RSAKeyPair b;
-    b.generate_key("b");
-    Poco::Crypto::EVPPKey keyClient = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_b.pem", "/tmp/homenetctl/privateKey_b.pem");
-    std::string nom = "B";
-    auto selfsigncert = CertificateHandler::selfSign(nom, keyClient,30);
+    Poco::Crypto::EVPPKey keyClient = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey.pem", "/tmp/homenetctl/privateKey.pem");
+    Poco::Crypto::EVPPKey key1 = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_1.pem", "/tmp/homenetctl/privateKey_1.pem");
+    Poco::Crypto::EVPPKey key2 = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_2.pem", "/tmp/homenetctl/privateKey_2.pem");
+    Poco::Crypto::EVPPKey key3 = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_3.pem", "/tmp/homenetctl/privateKey_3.pem");
+    Poco::Crypto::EVPPKey keyServer = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_4.pem", "/tmp/homenetctl/privateKey_4.pem");
 
-    Poco::Crypto::X509Certificate test = A.newCertificate(*selfsigncert,nom);
+    std::string nom = "name";
+    std::string nom1 = "name1";
+    std::string nom2 = "name2";
+    std::string nom3 = "name3";
+    std::string nomServ = "nameServ";
 
-    A.addInDA(test);
-    A.display();
+    auto cert1 = CertificateHandler::sign(nom1, key1,nom, keyClient,10);
+    cert1->save("/tmp/homenetctl/clientSave.pem");
+    auto cert2 = CertificateHandler::sign(nom2, key2, nom1, key1, 10);
+    auto cert3 = CertificateHandler::sign(nom3, key3, nom2, key2, 10);
+    auto cert4 = CertificateHandler::sign(nomServ, keyServer, nom3, key3,10);
 
+    auto selfsigncert = CertificateHandler::selfSign(nomServ, keyServer,10);
+    CertificateHandler handler(keyServer, nomServ);
+    handler.addCertificate(cert4, keyServer);
+    handler.addCertificate(cert3, key3);
+    handler.addCertificate(cert2, key2);
+    handler.addCertificate(cert1, key1);
+
+    handler.save();
     return true;
+}
+
+bool TestHandler::test8(){
+    RSAKeyPair a;
+
+    Poco::Crypto::EVPPKey keyClient = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey.pem", "/tmp/homenetctl/privateKey.pem");
+    Poco::Crypto::EVPPKey key1 = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_1.pem", "/tmp/homenetctl/privateKey_1.pem");
+    Poco::Crypto::EVPPKey key2 = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_2.pem", "/tmp/homenetctl/privateKey_2.pem");
+    Poco::Crypto::EVPPKey key3 = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_3.pem", "/tmp/homenetctl/privateKey_3.pem");
+    Poco::Crypto::EVPPKey keyServer = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_4.pem", "/tmp/homenetctl/privateKey_4.pem");
+
+    std::string nom = "name";
+    std::string nom1 = "name1";
+    std::string nom2 = "name2";
+    std::string nom3 = "name3";
+    std::string nomServ = "nameServ";
+    CertificateHandler::X509Ptr cert1 = std::make_shared<Poco::Crypto::X509Certificate>("/tmp/homenetctl/clientSave.pem");
+
+
+    /* auto cert1 = CertificateHandler::sign(nom1, key1,nom, keyClient,10); */
+    /* auto cert2 = CertificateHandler::sign(nom2, key2, nom1, key1, 10); */
+    /* auto cert3 = CertificateHandler::sign(nom3, key3, nom2, key2, 10); */
+    /* auto cert4 = CertificateHandler::sign(nomServ, keyServer, nom3, key3,10); */
+
+    CertificateHandler handler(keyServer, nomServ);
+    handler.load();
+    auto selfsigncert=handler.getSelfSigned();
+
+    return CertificateHandler::checkCertificateChain(handler.findChainCert(cert1), *selfsigncert);
 }

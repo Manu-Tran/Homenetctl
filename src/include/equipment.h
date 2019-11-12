@@ -13,15 +13,14 @@
 #include "certificateHandler.h"
 #include <vector>
 
+using X509Ptr = std::shared_ptr<Poco::Crypto::X509Certificate>;
+
 class Equipment {
 
 private:
     std::string mId;
     RSAKeyPair mKeys;
     int mPort;
-
-    std::string pathCA;
-    std::string pathDA;
 
     CertificateHandler::X509Ptr mSelfSignedCertificate;
 
@@ -42,6 +41,9 @@ public:
     void addInDA(Poco::Crypto::X509Certificate cert);
     void writeCertificateToFile(Poco::Crypto::X509Certificate cert, std::string path);
     Poco::Crypto::X509Certificate readCertificateFromFile(std::string path);
+
+    void saveEquipment();
+    Equipment(std::string id);
 
     //ADD New equipment
     void addEquipmentServerSide();

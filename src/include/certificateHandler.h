@@ -36,7 +36,7 @@ private:
     std::string recursionSave(certificate_node node);
 
 public:
-    CertificateHandler(EVP_PKEY * priKey, std::string name, std::string certDirPath="/tmp/homenetctl/certs/", std::string selfSignedCertName="selfSigned.pem");
+    CertificateHandler(EVP_PKEY * priKey, std::string name, std::string certDirPath="/tmp/homenetctl/", std::string selfSignedCertName="selfSigned.pem");
     bool addCertificate(X509Ptr cert);
     bool addCertificate(X509Ptr cert, Poco::Crypto::RSAKey signerPubKey);
     Poco::Crypto::X509Certificate::List findChainCert(X509Ptr cert);
@@ -57,6 +57,7 @@ public:
     void save();
     void load();
     X509Ptr getSelfSigned();
+    std::string getCertsSavedPath();
 };
 
 #endif //HOMENETCTL_CERTIFICATE_H

@@ -33,7 +33,7 @@ void Equipment::addEquipmentServerSide()
         this->writeCertificateToFile(*mSelfSignedCertificate, selfSignedPath);
 
         //Receive certificate from Client
-        result = serv.receiveFile(receivedSelfSignedPath, serv.getNewSocket(), 940);
+        result = serv.receiveFile(receivedSelfSignedPath, serv.getNewSocket());
         if (result) std::cout << "Client Self signed certificate received" << std::endl;
 
         //send selfsigned certificate to client
@@ -51,7 +51,7 @@ void Equipment::addEquipmentServerSide()
         this->writeCertificateToFile((newCert), newCertPath);
 
         //receive new one from server
-        result = serv.receiveFile(receivedNewCertPath, serv.getNewSocket(), 940);
+        result = serv.receiveFile(receivedNewCertPath, serv.getNewSocket());
         if (result) std::cout << "New certificate received!" << std::endl;
 
         //send it to server

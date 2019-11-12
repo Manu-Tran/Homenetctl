@@ -36,7 +36,7 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
         if (result) std::cout << "Client Self Signed Certificate sent!" << std::endl;
 
         //Receive new certificate from server INTO TEMP FILE
-        result = cl.receiveFile(receivedSelfSignedPath, cl.getSocket(), 940);
+        result = cl.receiveFile(receivedSelfSignedPath, cl.getSocket());
         if (result) std::cout << "Server self signed certificate received!" << std::endl;
 
         //read temp file to a certificate --> readCertificateFromFile()
@@ -54,7 +54,7 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
         if (result) std::cout << "New Certificate sent!" << std::endl;
 
         //Receive the new one
-        result = cl.receiveFile(newCertPath, cl.getSocket(), 940);
+        result = cl.receiveFile(newCertPath, cl.getSocket());
         if (result) std::cout << "New certificate received!" << std::endl;
 
         //read it from file
@@ -71,5 +71,8 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
     remove( selfSignedPath.c_str() );
     remove( receivedSelfSignedPath.c_str() );
     remove( newCertPath.c_str() );
-
 }
+
+/* void Equipment::synchroClientSide(const char * serverAddress){ */
+
+/* } */

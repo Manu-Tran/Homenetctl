@@ -60,9 +60,11 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
         //read it from file
         newCert = readCertificateFromFile(newCertPath);
 
-        if (CertificateHandler::checkCertificate(newCert, subjectSelfSignedCert))
+        if (CertificateHandler::checkCertificate(newCert, subjectSelfSignedCert)) {
             //add it to CA
             CA.push_back(newCert);
+            std::cout << "received cert OK" << std::endl;
+        }
         else
             std::cout << "The received certificate is not correct!" << std::endl;
     }

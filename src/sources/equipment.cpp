@@ -45,6 +45,8 @@ Poco::Crypto::X509Certificate Equipment::newCertificate(Poco::Crypto::X509Certif
     //get key from certificate
     RSAKeyPair clientKey(clientName, cert);
 
+    mKeys.setId(mId);
+    clientKey.setId(clientName);
     //create a new one and sign it using my key
     auto cert1 = CertificateHandler::sign(mId,Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()),clientName,Poco::Crypto::EVPPKey(clientKey.loadKeys(false).get()),20);
 

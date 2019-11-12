@@ -46,8 +46,9 @@ static void show_usage(std::string name)
               << "\t-h,--help\t\tShow this help message\n"
               << "\t-i <Equipment Name>, --init <Equipment Name>\t\t Sets up your environment\n"
               << "\t-r,--reset\t\tReset the configuration\n"
-              << "\t-a <Equipment Name> <PORT> ,--add <Equipment Name> <PORT> \t\tReset the configuration\n"
-              << "\t-j <Equipment Name> <SERVER IP> <PORT>,--client <Equipment Name> <SERVER IP> <PORT>\t"
+              << "\t-a <Equipment Name> <PORT> ,--add <Equipment Name> <PORT> \t\t add a new equipment to my lists\n"
+              << "\t-j <Equipment Name> <SERVER IP> <PORT>,--client <Equipment Name> <SERVER IP> <PORT>\t\t ask to join a domestic network\n"
+              << "\t-d <Equipment Name>, --display <Equipment Name>\t\t display the current known devices to this equipment\n"
               << "\t--test\t\tLaunch tests"
               << std::endl;
 }
@@ -115,6 +116,23 @@ int main(int argc, char* argv[])
             }
 
             return 0;
+
+        } else if((arg == "-d") || (arg == "--display")) {
+
+            if(i+1 < argc)
+            {
+                name = argv[i+1];
+                //Load equipment with said name
+                //display it using eq.display();
+            }
+            else
+            {
+                std::cerr << "--display option requires one argument." << std::endl;
+                return 1;
+            }
+
+            return 0;
+
 
         } else if ((arg == "-r") || (arg == "--reset")) {
             show_usage(argv[0]);

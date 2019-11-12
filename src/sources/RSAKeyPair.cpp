@@ -2,6 +2,7 @@
 // Created by romain on 15/10/2019.
 //
 
+#include <Poco/Crypto/X509Certificate.h>
 #include "RSAKeyPair.h"
 
 namespace fs = std::filesystem;
@@ -10,20 +11,22 @@ namespace fs = std::filesystem;
  * Constructor
  * It generates a pair of RSA keys or check their existence.
  */
-RSAKeyPair::RSAKeyPair()
+RSAKeyPair::RSAKeyPair(std::string id)
+    : mId(id)
 {
     if(!fs::exists(mPath))
     {
         fs::create_directory(mPath);
+        std::cout << "Directory was created" << std::endl;
     }
-    if(fs::exists(mPubKeyPath) && fs::exists(mPrivKeyPath))
+    if(fs::exists(getPublicKeyPath()) && fs::exists(getPrivateKeyPath()))
     {
         std::cout << "Loading RSA keys" << std::endl;
         loadKeys(true);
     }
     else {
         std::cout << "Generating new keys..." << std::endl;
-        bool result = generate_key();
+        bool result = generate_key(id);
         if(!result) {
             std::cerr << "error during the key generation! " << std::endl;
             std::exit(EXIT_FAILURE);
@@ -31,11 +34,48 @@ RSAKeyPair::RSAKeyPair()
     }
 }
 
+RSAKeyPair::RSAKeyPair(std::string keyname, Poco::Crypto::X509Certificate cert)
+{
+    Poco::Crypto::RSAKey clientKey(cert);
+    std::string publicKeyName = "clientPublicKey";
+    std::string privateKeyName = "clientPrivateKey";
+    if (keyname != ""){
+        publicKeyName  += "_" + keyname;
+        privateKeyName += "_" + keyname;
+    }
+    publicKeyName  += ".pem";
+    privateKeyName += ".pem";
+
+    //Save said key into 2 PEM files, one for public key one for private key
+    clientKey.save(mPath / publicKeyName,mPath / privateKeyName,"");
+
+    //Load the public and private keys from their files into the classes's fields
+    std::ifstream pub, priv;
+    std::string line, pubKey, priKey;
+
+    pub.open(mPath / publicKeyName);
+    priv.open(mPath / privateKeyName);
+
+    if (pub) {
+        while (std::getline(pub, line)) {
+            pubKey+=line;
+        }
+    } else {
+        std::cout << "could not open public key file" << std::endl;
+    }
+    if (priv) {
+        while (std::getline(priv, line)) {
+            priKey+=line;
+        }
+    } else
+        std::cout << "could not open private key file" << std::endl;
+}
+
 std::unique_ptr<Poco::Crypto::RSAKey> RSAKeyPair::loadKeys(bool priv){
-    Key_ptr key = std::make_unique<Poco::Crypto::RSAKey>(mPubKeyPath);
+    Key_ptr key = std::make_unique<Poco::Crypto::RSAKey>(getPublicKeyPath());
     try {
         if (priv){
-            key = std::make_unique<Poco::Crypto::RSAKey>(mPubKeyPath, mPrivKeyPath);
+            key = std::make_unique<Poco::Crypto::RSAKey>(getPublicKeyPath(), getPrivateKeyPath());
         }
     }
     catch (Poco::IOException){
@@ -85,9 +125,25 @@ bool RSAKeyPair::generate_key(std::string keyname) {
             priKey+=line;
         }
         return true;
-    } else
+    } else {
         std::cout << "could not open private key file" << std::endl;
         return false;
+    }
+}
+
+
+const std::filesystem::path RSAKeyPair::getPublicKeyPath(){
+    if (mId == "")
+        return (mPath / (std::filesystem::path) ("publicKey.pem"));
+    else
+        return (mPath / (std::filesystem::path) ("publicKey_"+mId+".pem"));
+
+}
+const std::filesystem::path RSAKeyPair::getPrivateKeyPath(){
+    if (mId == "")
+        return (mPath / (std::filesystem::path) ("privateKey.pem"));
+    else
+        return (mPath / (std::filesystem::path) ("privateKey_"+mId+".pem"));
 }
 
 /**

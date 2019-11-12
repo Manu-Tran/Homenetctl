@@ -17,16 +17,14 @@ class Client : public Socket {
 private:
 
     int mSocket = 0;
-    int init(const char * serverAddress);
+    int mPort;
+    int init(const char * serverAddress, int port);
 
 public:
 
-    Client(const char * serverAddress);
-
-    //has to be called inside the connect function to get the right IP address and port for the server
-    sockaddr_in getServerAddress();
-
+    Client(const char * serverAddress, int port);
     bool connectToServer();
+    bool clientAcceptAccess(int socket, std::string name);
     int getSocket();
 
 };

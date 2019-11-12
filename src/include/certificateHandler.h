@@ -41,10 +41,12 @@ public:
     };
 
 private:
-    // Map between a pair<Id,PublicKey> to a pointer to a Poco::Crypto::X509Certificate
+    // Map between a pair<Id,PublicKey> to a pointer to a node of the tree
     std::map<DevId, std::weak_ptr<certificate_node> >mX509Searcher;
     std::filesystem::path mCertDir;
     std::shared_ptr<certificate_node> mSelfSignedCert;
+
+    std::string recursionSave(certificate_node node);
 
 public:
     CertificateHandler(EVP_PKEY * priKey, std::string name, std::string certDirPath="/tmp/homenetctl/cert/", std::string selfSignedCertName="selfSigned.pem");
@@ -56,9 +58,14 @@ public:
 
     static bool checkCertificateChain( Poco::Crypto::X509Certificate::List certChain, Poco::Crypto::X509Certificate userCert);
     static bool checkCertificate( Poco::Crypto::X509Certificate clientCert, Poco::Crypto::X509Certificate userCert);
+
+    // Utility functions
     static std::string getPublicKey(Poco::Crypto::X509Certificate cert);
     static std::string keyToString(Poco::Crypto::RSAKey key);
+    static std::string getSignatureId(DevId id);
+    static DevId getIdFromX509(Poco::Crypto::X509Certificate cert);
 
+    bool save();
 };
 
 #endif //HOMENETCTL_CERTIFICATE_H

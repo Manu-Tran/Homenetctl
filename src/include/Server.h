@@ -19,12 +19,14 @@ class Server : public Socket{
 
 private:
 
-    int  mNew_socket;
+    int mNew_socket;
+    int mPort;
 
 public:
 
-    Server();
+    Server(int port);
     bool listenForConnectionRequests();
+    bool serverAcceptAccess(int socket, std::string name);
     int getNewSocket();
 
 };

@@ -5,7 +5,13 @@
 
 #include "Client.h"
 
-int Client::init(const char * serverAddress)
+/**
+ * Function used to initialize a client socket
+ * @param serverAddress
+ * @param port
+ * @return
+ */
+int Client::init(const char * serverAddress, int port)
 {
     if ((mSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
@@ -14,7 +20,7 @@ int Client::init(const char * serverAddress)
     }
 
     mServerAddress.sin_family = AF_INET;
-    mServerAddress.sin_port = htons(PORT);
+    mServerAddress.sin_port = htons(port);
 
     // Convert IPv4 and IPv6 addresses from text to binary form
     if(inet_pton(AF_INET, serverAddress, &mServerAddress.sin_addr)<=0)
@@ -26,13 +32,22 @@ int Client::init(const char * serverAddress)
     return 1;
 }
 
-Client::Client(const char * serverAddress)
+/**
+ * Constructor for Client
+ * @param serverAddress
+ * @param port
+ */
+Client::Client(const char * serverAddress, int port)
 {
-    int result = init(serverAddress);
+    int result = init(serverAddress, port);
     if(result == -1)
         exit(EXIT_FAILURE);
 }
 
+/**
+ * Connection to server
+ * @return
+ */
 bool Client::connectToServer()
 {
     if (connect(mSocket, (struct sockaddr *)&mServerAddress, sizeof(mServerAddress)) < 0)
@@ -43,9 +58,32 @@ bool Client::connectToServer()
     return true;
 }
 
-sockaddr_in Client::getServerAddress() {
+bool Client::clientAcceptAccess(int socket, std::string name)
+{
+    int len = 1;
+    char buffer[1];
+    char userInput;
 
-    return mServerAddress;
+    send(socket,name.c_str(),strlen(name.c_str()),0);
+
+    read(socket,buffer,len);
+
+    std::cout << "Equipment " << std::string(buffer) << " has accepted your request, would you like to proceed? [y/n]" << std::endl;
+
+    while(true) {
+        std::cin >> userInput;
+
+        switch (userInput) {
+            case 'y' :
+                std::cout << "We will now proceed" << std::endl;
+                return true;
+            case 'n' :
+                std::cout << "Okay well too bad" << std::endl;
+                return false;
+            default:
+                std::cout << "Please enter a valid answer: " << std::endl;
+        }
+    }
 }
 
 int Client::getSocket() { return mSocket; }

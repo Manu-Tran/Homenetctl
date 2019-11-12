@@ -13,9 +13,9 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
 {
     bool result;
 
-    std::string selfSignedPath = "/tmp/homenetctl/certs/client/clientSelfSignedCert.pem";
-    std::string receivedSelfSignedPath = "/tmp/homenetctl/certs/client/serverSelfSignedCert.pem";
-    std::string newCertPath = "/tmp/homenetctl/certs/client/newCert.pem";
+    std::string selfSignedPath = "/tmp/homenetctl/"+mId+"/clientSelfSignedCert.pem";
+    std::string receivedSelfSignedPath = "/tmp/homenetctl/"+mId+"/serverSelfSignedCert.pem";
+    std::string newCertPath = "/tmp/homenetctl/"+mId+"/newCert.pem";
 
     //Create Client socket and connect to server using address and port
     Client cl(serverAddress,mPort);

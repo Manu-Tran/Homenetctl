@@ -11,6 +11,10 @@
 #include <Client.h>
 #include <Server.h>
 
+namespace fs = std::filesystem;
+
+void init(std::string name);
+
 /* Generates a 2048-bit RSA key. */
 EVP_PKEY * generate_key()
 {
@@ -40,9 +44,10 @@ static void show_usage(std::string name)
     std::cerr << "Usage: " << name << " <option(s)> \n"
               << "Options:\n"
               << "\t-h,--help\t\tShow this help message\n"
+              << "\t-i <Equipment Name>, --init <Equipment Name>\t\t Sets up your environment\n"
               << "\t-r,--reset\t\tReset the configuration\n"
-              << "\t-s <PORT> <SERVER IP>,--server <PORT> <SERVER IP>\t\tReset the configuration\n"
-              << "\t-c <PORT> <SERVER IP>,--client <PORT> <SERVER IP>\t"
+              << "\t-a <Equipment Name> <PORT> ,--add <Equipment Name> <PORT> \t\tReset the configuration\n"
+              << "\t-j <Equipment Name> <SERVER IP> <PORT>,--client <Equipment Name> <SERVER IP> <PORT>\t"
               << "\t--test\t\tLaunch tests"
               << std::endl;
 }
@@ -57,6 +62,7 @@ int main(int argc, char* argv[])
     int port;
     const char * addr;
     bool test=false;
+    std::string name;
 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
@@ -64,31 +70,47 @@ int main(int argc, char* argv[])
         if ((arg == "-h") || (arg == "--help")) {
             show_usage(argv[0]);
             return 0;
-        } else if ((arg == "-s") || (arg == "--server")) {
-            if (i + 1 < argc) {
-                port = std::stoi(argv[i+1]);
+        } else if ((arg == "-a") || (arg == "--add")) {
+            if (i + 2 < argc) {
+                name = argv[i + 1];
+                port = std::stoi(argv[i+2]);
 
-                Equipment A("A",port);
+                Equipment A(name,port);
                 A.addEquipmentServerSide();
 
                 return 0;
 
             } else {
-                  std::cerr << "--server option requires one argument." << std::endl;
+                std::cerr << "--add option requires two arguments." << std::endl;
                 return 1;
             }
 
-        } else if ((arg == "--client" || arg == "-c")) {
+        } else if ((arg == "--join" || arg == "-j")) {
 
-            if(i+2 < argc) {
-                addr = argv[i+1];
-                port = std::stoi(argv[i+2]);
+            if (i + 3 < argc) {
+                name = argv[i + 1];
+                addr = argv[i + 2];
+                port = std::stoi(argv[i + 3]);
 
-                Equipment B("B",port);
+                Equipment B(name, port);
                 B.addEquipmentClientSide(addr);
 
             } else {
-                std::cerr << "--client option requires two arguments." << std::endl;
+                std::cerr << "--join option requires three arguments." << std::endl;
+                return 1;
+            }
+
+            return 0;
+        } else if((arg == "-i") || (arg == "--init")) {
+
+            if(i+1 < argc)
+            {
+                name = argv[i+1];
+                init(name);
+            }
+            else
+            {
+                std::cerr << "--init option requires one argument." << std::endl;
                 return 1;
             }
 
@@ -107,4 +129,21 @@ int main(int argc, char* argv[])
        TestHandler::launchTests();
     }
     return 0;
+}
+
+void init(std::string name)
+{
+    std::filesystem::path mPath = "/tmp/homenetctl";
+    std::filesystem::path mPathEquipment = "/tmp/homenetctl/"+name;
+
+
+    if(!fs::exists(mPath))
+        fs::create_directory(mPath);
+
+    if(!fs::exists(mPathEquipment))
+        fs::create_directory(mPathEquipment);
+
+    std::cout << "Directories were created" << std::endl;
+
+    //Create equipment + Save it
 }

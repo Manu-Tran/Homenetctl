@@ -12,10 +12,10 @@
 void Equipment::addEquipmentServerSide()
 {
     bool result;
-    std::string selfSignedPath = "/tmp/homenetctl/certs/server/serverSelfSignedCert.pem";
-    std::string receivedSelfSignedPath = "/tmp/homenetctl/certs/server/clientSelfSignedCert.pem";
-    std::string newCertPath = "/tmp/homenetctl/certs/server/newCert.pem";
-    std::string receivedNewCertPath = "/tmp/homenetctl/certs/server/receivedNewCert.pem";
+    std::string selfSignedPath = "/tmp/homenetctl/"+mId+"/serverSelfSignedCert.pem";
+    std::string receivedSelfSignedPath = "/tmp/homenetctl/"+mId+"/clientSelfSignedCert.pem";
+    std::string newCertPath = "/tmp/homenetctl/"+mId+"/newCert.pem";
+    std::string receivedNewCertPath = "/tmp/homenetctl/"+mId+"/receivedNewCert.pem";
 
     //Create Server socket, bind it, listen and accept connections
     Server serv(mPort);

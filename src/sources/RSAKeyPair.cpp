@@ -37,8 +37,8 @@ RSAKeyPair::RSAKeyPair(std::string id)
 RSAKeyPair::RSAKeyPair(std::string keyname, Poco::Crypto::X509Certificate cert)
 {
     Poco::Crypto::RSAKey clientKey(cert);
-    std::string publicKeyName = "clientPublicKey";
-    std::string privateKeyName = "clientPrivateKey";
+    std::string publicKeyName = "PublicKey";
+    std::string privateKeyName = "PrivateKey";
     if (keyname != ""){
         publicKeyName  += "_" + keyname;
         privateKeyName += "_" + keyname;

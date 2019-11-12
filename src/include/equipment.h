@@ -38,7 +38,8 @@ public:
     Poco::Crypto::X509Certificate newCertificate(Poco::Crypto::X509Certificate cert, std::string clientName);
 
     //SAVE & LOAD
-    void AddInCA(CertificateHandler::X509Ptr cert);
+    void addInCA(Poco::Crypto::X509Certificate cert);
+    void addInDA(Poco::Crypto::X509Certificate cert);
     void writeCertificateToFile(Poco::Crypto::X509Certificate cert, std::string path);
     Poco::Crypto::X509Certificate readCertificateFromFile(std::string path);
 
@@ -47,6 +48,7 @@ public:
     void addEquipmentClientSide(const char * serverAddress);
 
     //DISPLAY
+    static void display_certificate(const Poco::Crypto::X509Certificate& certif);
     void display_DA();
     void display_CA();
     void display(); //calls on the previous 2

@@ -29,7 +29,7 @@ Equipment::Equipment(std::string id, int port)
         std::cout << "error in the selfsigned certificate" << std::endl;
         exit(EXIT_FAILURE);
     } else {
-        AddInCA(mSelfSignedCertificate);
+        addInCA(*mSelfSignedCertificate);
     }
 
 }
@@ -46,7 +46,7 @@ Poco::Crypto::X509Certificate Equipment::newCertificate(Poco::Crypto::X509Certif
     RSAKeyPair clientKey(clientName, cert);
 
     //create a new one and sign it using my key
-    auto cert1 = CertificateHandler::sign(mId,Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()),clientName,Poco::Crypto::EVPPKey(clientKey.loadKeys(false).get()),30);
+    auto cert1 = CertificateHandler::sign(mId,Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()),clientName,Poco::Crypto::EVPPKey(clientKey.loadKeys(false).get()),20);
 
     //return it
     return *cert1;
@@ -58,9 +58,13 @@ Poco::Crypto::X509Certificate Equipment::newCertificate(Poco::Crypto::X509Certif
  * @param pubkey
  * @param cert
  */
-void Equipment::AddInCA(CertificateHandler::X509Ptr cert)
+void Equipment::addInCA(Poco::Crypto::X509Certificate cert)
 {
-    CA.push_back(*cert);
+    CA.push_back(cert);
+}
+void Equipment::addInDA(Poco::Crypto::X509Certificate cert)
+{
+    DA.push_back(cert);
 }
 
 void Equipment::writeCertificateToFile(Poco::Crypto::X509Certificate cert, std::string path)
@@ -77,54 +81,6 @@ Poco::Crypto::X509Certificate Equipment::readCertificateFromFile(std::string pat
     v = Poco::Crypto::X509Certificate::readPEM(path);
 
     return  v[0];
-}
-
-//DISPLAY
-/**
- * Displays CA
- */
-void Equipment::display_CA()
-{
-    std::string certs;
-    std::ifstream fileCA (pathCA);
-    if (fileCA.is_open())
-    {
-        std::cout << "certs from CA: " << std::endl;
-        while ( getline (fileCA,certs) )
-        {
-            std::cout << certs << '\n';
-        }
-        fileCA.close();
-    }
-
-    else std::cout << "Unable to open CA file";
-}
-/**
- * Displays DA
- */
-void Equipment::display_DA()
-{
-    std::string certs;
-    std::ifstream fileDA (pathDA);
-    if (fileDA.is_open())
-    {
-        std::cout << "certs from DA: " << std::endl;
-        while ( getline (fileDA,certs) )
-        {
-            std::cout << certs << '\n';
-        }
-        fileDA.close();
-    }
-
-    else std::cout << "Unable to open DA file";
-}
-/**
- * Displays both CA and DA
- */
-void Equipment::display()
-{
-    display_CA();
-    display_DA();
 }
 
 int Equipment::getFileSize(std::string path)

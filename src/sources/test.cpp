@@ -144,7 +144,19 @@ bool TestHandler::test6()
 
 bool TestHandler::test7()
 {
+    Equipment A("A",1234);
+    //A.display_CA();
 
+    RSAKeyPair b;
+    b.generate_key("b");
+    Poco::Crypto::EVPPKey keyClient = Poco::Crypto::EVPPKey("/tmp/homenetctl/publicKey_b.pem", "/tmp/homenetctl/privateKey_b.pem");
+    std::string nom = "B";
+    auto selfsigncert = CertificateHandler::selfSign(nom, keyClient,30);
+
+    Poco::Crypto::X509Certificate test = A.newCertificate(*selfsigncert,nom);
+
+    A.addInDA(test);
+    A.display();
 
     return true;
 }

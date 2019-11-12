@@ -20,16 +20,18 @@ class TestHandler {
     static bool test5();
     static bool test6();
     static bool test7();
+    static bool test8();
 
 public :
     static void launchTests(){
         /* std::cout << "Test 1... " << (test1() ? "Ok" : "Failed") << std::endl; */
         /* std::cout << "Test 2... " << (test2() ? "Ok" : "Failed") << std::endl; */
-        //std::cout << "Test 3... " << (test3() ? "Ok" : "Failed") << std::endl;
-        //std::cout << "Test 4... " << (test4() ? "Ok" : "Failed") << std::endl;
-        //std::cout << "Test 5... " << (test5() ? "Ok" : "Failed") << std::endl;
-        //std::cout << "Test 6... " << (test6() ? "Ok" : "Failed") << std::endl;
+        std::cout << "Test 3... " << (test3() ? "Ok" : "Failed") << std::endl;
+        std::cout << "Test 4... " << (test4() ? "Ok" : "Failed") << std::endl;
+        std::cout << "Test 5... " << (test5() ? "Ok" : "Failed") << std::endl;
+        std::cout << "Test 6... " << (test6() ? "Ok" : "Failed") << std::endl;
         std::cout << "Test 7... " << (test7() ? "Ok" : "Failed") << std::endl;
+        std::cout << "Test 8... " << (test8() ? "Ok" : "Failed") << std::endl;
 
     }
 

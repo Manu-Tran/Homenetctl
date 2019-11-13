@@ -166,16 +166,16 @@ bool Equipment::authentificateClientSide(const char * serverAddress){
         result = cl.sendFile(selfSignedPath, cl.getSocket());
         if (result) std::cout << "Client Self Signed Certificate sent!" << std::endl;
 
+        //Receive new certificate from server INTO TEMP FILE
+        result = cl.receiveFile(receivedSelfSignedPath, cl.getSocket());
+        if (result) std::cout << "Server self signed certificate received!" << std::endl;
+
         CertificateHandler::X509Ptr subjectSelfSignedCert = std::make_shared<Poco::Crypto::X509Certificate>(readCertificateFromFile(receivedSelfSignedPath));
         Poco::Crypto::X509Certificate::writePEM(chainPath ,this->mHandler->findChainCert(subjectSelfSignedCert));
 
         //Send chain file to server
         result = cl.sendFile(chainPath, cl.getSocket());
         if (result) std::cout << "Client Chain Certificate sent!" << std::endl;
-
-        //Receive new certificate from server INTO TEMP FILE
-        result = cl.receiveFile(receivedSelfSignedPath, cl.getSocket());
-        if (result) std::cout << "Server self signed certificate received!" << std::endl;
 
         //Receive new certificate from server INTO TEMP FILE
         result = cl.receiveFile(receivedChainPath, cl.getSocket());

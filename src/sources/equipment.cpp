@@ -14,7 +14,6 @@ Equipment::Equipment(std::string id, int port)
     , mKeys(mId)
 {
     //ID and Port are gotten from user input
-    pathCA = "/tmp/homenetctl/certs/" + mId + ".pem";
     mPort=port;
 
     //Generate self signed certificate
@@ -39,8 +38,10 @@ Poco::Crypto::X509Certificate Equipment::newCertificate(Poco::Crypto::X509Certif
     //get key from certificate
     RSAKeyPair clientKey(clientName, cert);
 
+    mKeys.setId(mId);
+    clientKey.setId(clientName);
     //create a new one and sign it using my key
-    auto cert1 = CertificateHandler::sign(mId,Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()),clientName,Poco::Crypto::EVPPKey(clientKey.loadKeys(false).get()),30);
+    auto cert1 = CertificateHandler::sign(mId,Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()),clientName,Poco::Crypto::EVPPKey(clientKey.loadKeys(false).get()),20);
 
     //return it
     return *cert1;
@@ -52,10 +53,14 @@ Poco::Crypto::X509Certificate Equipment::newCertificate(Poco::Crypto::X509Certif
  * @param pubkey
  * @param cert
  */
-void Equipment::AddInCA(CertificateHandler::X509Ptr cert)
+void Equipment::addInCA(Poco::Crypto::X509Certificate cert)
 {
     CA.push_back(*cert);
     mHandler->addCertificate(cert);
+}
+void Equipment::addInDA(Poco::Crypto::X509Certificate cert)
+{
+    DA.push_back(cert);
 }
 
 void Equipment::writeCertificateToFile(Poco::Crypto::X509Certificate cert, std::string path)
@@ -74,54 +79,6 @@ Poco::Crypto::X509Certificate Equipment::readCertificateFromFile(std::string pat
     return  v[0];
 }
 
-//DISPLAY
-/**
- * Displays CA
- */
-void Equipment::display_CA()
-{
-    std::string certs;
-    std::ifstream fileCA (pathCA);
-    if (fileCA.is_open())
-    {
-        std::cout << "certs from CA: " << std::endl;
-        while ( getline (fileCA,certs) )
-        {
-            std::cout << certs << '\n';
-        }
-        fileCA.close();
-    }
-
-    else std::cout << "Unable to open CA file";
-}
-/**
- * Displays DA
- */
-void Equipment::display_DA()
-{
-    std::string certs;
-    std::ifstream fileDA (pathDA);
-    if (fileDA.is_open())
-    {
-        std::cout << "certs from DA: " << std::endl;
-        while ( getline (fileDA,certs) )
-        {
-            std::cout << certs << '\n';
-        }
-        fileDA.close();
-    }
-
-    else std::cout << "Unable to open DA file";
-}
-/**
- * Displays both CA and DA
- */
-void Equipment::display()
-{
-    display_CA();
-    display_DA();
-}
-
 int Equipment::getFileSize(std::string path)
 {
     std::ifstream file(path);
@@ -132,6 +89,69 @@ int Equipment::getFileSize(std::string path)
     file.close();
 
     return length;
+}
+
+void Equipment::saveEquipment()
+{
+    std::string path = "/tmp/homenetctl/"+mId+"/saved.txt";
+    RSAKeyPair bufferKey;
+    std::ofstream file; // out file stream
+    file.open(path);
+
+    //Save the port
+    file << mPort << std::endl;
+
+    //save the certs
+    CertificateHandler handler(Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()), mId);
+
+    //for each cert in CA, extract the public key that was signed and add it and the certificate to the handler like this:
+    X509Ptr x509;
+
+    for (auto itr(CA.begin()); itr != CA.end(); itr++){
+        bufferKey = RSAKeyPair((*itr).commonName(), (*itr));
+        bufferKey.setId((*itr).commonName());
+        x509 = std::make_shared<Poco::Crypto::X509Certificate>(*itr);
+        handler.addCertificate(x509,Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()));
+    }
+
+    for (auto itr(DA.begin()); itr != DA.end(); itr++){
+        bufferKey = RSAKeyPair((*itr).commonName(), (*itr));
+        bufferKey.setId((*itr).commonName());
+        x509 = std::make_shared<Poco::Crypto::X509Certificate>(*itr);
+        handler.addCertificate(x509,Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()));
+    }
+
+    handler.save();
+
+    file << handler.getCertsSavedPath() + "knownCerts.pem" << std::endl;
+
+    file.close();
+}
+
+Equipment::Equipment(std::string id)
+{
+    std::string path = "/tmp/homenetctl/"+id+"/saved.txt";
+    std::string certsPath, str;
+
+    std::ifstream file;
+    file.open(path);
+    //The port
+    std::getline(file, str);
+    mPort = std::stoi(str);
+
+    //Create the key using the ID
+    mKeys = RSAKeyPair(id);
+
+    //The list of certificates
+    std::getline(file, certsPath);
+
+    //Fill out CA and DA using --> load from cert handler and fillCA/fillDA
+    CertificateHandler handler(Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()), id);
+
+    handler.load();
+
+    //There now fill CA and DA
+
 }
 
 //GETTERS

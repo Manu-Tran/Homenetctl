@@ -37,8 +37,8 @@ RSAKeyPair::RSAKeyPair(std::string id)
 RSAKeyPair::RSAKeyPair(std::string keyname, Poco::Crypto::X509Certificate cert)
 {
     Poco::Crypto::RSAKey clientKey(cert);
-    std::string publicKeyName = "clientPublicKey";
-    std::string privateKeyName = "clientPrivateKey";
+    std::string publicKeyName = "PublicKey";
+    std::string privateKeyName = "PrivateKey";
     if (keyname != ""){
         publicKeyName  += "_" + keyname;
         privateKeyName += "_" + keyname;
@@ -72,6 +72,7 @@ RSAKeyPair::RSAKeyPair(std::string keyname, Poco::Crypto::X509Certificate cert)
 }
 
 std::unique_ptr<Poco::Crypto::RSAKey> RSAKeyPair::loadKeys(bool priv){
+
     Key_ptr key = std::make_unique<Poco::Crypto::RSAKey>(getPublicKeyPath());
     try {
         if (priv){
@@ -144,6 +145,11 @@ const std::filesystem::path RSAKeyPair::getPrivateKeyPath(){
         return (mPath / (std::filesystem::path) ("privateKey.pem"));
     else
         return (mPath / (std::filesystem::path) ("privateKey_"+mId+".pem"));
+}
+
+void RSAKeyPair::setId(std::string id)
+{
+    mId = id;
 }
 
 /**

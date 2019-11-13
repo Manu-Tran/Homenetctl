@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 // @params certDirPath (optional) path to store certificates (default : /tmp/homenetctl/cert)
 // @params selfSignedCertName (optional) name of the self signed certificate to load
 CertificateHandler::CertificateHandler(EVP_PKEY * privKey, std::string name, std::string certDirPath, std::string selfSignedCertName)
-    : mCertDir(certDirPath)
+    : mCertDir(certDirPath+=name)
 {
     CertificateHandler::X509Ptr selfSignedX509;
     // If the certificate exists, loads it
@@ -404,6 +404,11 @@ std::map<std::string,Poco::Crypto::RSAKey> CertificateHandler::readPubKeys(std::
 
 CertificateHandler::X509Ptr CertificateHandler::getSelfSigned(){
     return mSelfSignedCert->certificate;
+}
+
+std::string CertificateHandler::getCertsSavedPath()
+{
+    return mCertDir;
 }
 
 /* bool CertificateHandler::save(){ */

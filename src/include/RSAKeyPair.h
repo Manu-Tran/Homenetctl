@@ -44,6 +44,9 @@ public:
     /* EVP_PKEY * getPublicKey(); */
     /* EVP_PKEY * getPrivateKey(); */
 
+    //SETTERS
+    void setId(std::string id);
+
 
 };
 

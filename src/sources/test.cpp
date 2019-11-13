@@ -180,7 +180,6 @@ bool TestHandler::test7()
     handler.addCertificate(cert1, key1);
 
     handler.save();
-
     return true;
 }
 

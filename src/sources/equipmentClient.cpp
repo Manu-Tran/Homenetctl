@@ -142,6 +142,7 @@ void Equipment::synchroClientSide(const char * serverAddress){
             {
                 std::cout << "pubKey was not sent could not add" << std::endl;
             }
+
         }
     }
 

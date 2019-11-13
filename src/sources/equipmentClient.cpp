@@ -64,6 +64,9 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
 
             addInCA(newCert,Poco::Crypto::RSAKey(subjectSelfSignedCert));
             std::cout << "received cert OK" << std::endl;
+
+            synchroClientSide(serverAddress);
+
         }
         else
             std::cout << "The received certificate is not correct!" << std::endl;

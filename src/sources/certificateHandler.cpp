@@ -335,7 +335,7 @@ void CertificateHandler::save(){
     std::deque<std::shared_ptr<certificate_node>> currentDepth;
     std::deque<std::shared_ptr<certificate_node>> nextDepth;
     // Dont think we should save the self signed certificate that way
-    /* certificateList.push_back(*mSelfSignedCert->certificate); */
+    certificateList.push_back(*mSelfSignedCert->certificate);
     for (auto node : mSelfSignedCert->children){
         currentDepth.push_back(node);
     }

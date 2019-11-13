@@ -78,9 +78,10 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
 void Equipment::synchroClientSide(const char * serverAddress){
 
 
-    //if (!authentificateClientSide(serverAddress)){
-    //    std::cout << "Authentification failed ! " << std::endl;
-    //}
+    if (!authentificateClientSide(serverAddress)){
+        std::cout << "Authentification failed ! " << std::endl;
+    }
+
     bool result;
     std::string toSendPath = "/tmp/homenetctl/"+mId+"/knownCerts.pem";
     std::string receivedPath = "/tmp/homenetctl/"+mId+"/knownCertsReceived.pem";

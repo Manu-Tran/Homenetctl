@@ -75,14 +75,16 @@ void Equipment::addEquipmentServerSide()
     remove( receivedSelfSignedPath.c_str() );
     remove( newCertPath.c_str() );
     remove( receivedNewCertPath.c_str() );
+
+    close(serv.getNewSocket());
 }
 
 
 void Equipment::synchroServerSide(){
 
-    //if (!authentificateServerSide()){
-    //    std::cout << "Authentification failed ! " << std::endl;
-    //}
+    if (!authentificateServerSide()){
+        std::cout << "Authentification failed ! " << std::endl;
+    }
     bool result;
     std::string toSendPath = "/tmp/homenetctl/"+ mId+"/knownCerts.pem";
     std::string receivedPath = "/tmp/homenetctl/"+mId+"/knownCertsReceived.pem";
@@ -140,6 +142,8 @@ void Equipment::synchroServerSide(){
         }
     }
 
+    close(serv.getNewSocket());
+
     //Delete Temp files
     remove( receivedPath.c_str() );
     remove( receivedPubKeyPath.c_str() );
@@ -185,6 +189,7 @@ bool Equipment::authentificateServerSide(){
         result = serv.sendFile(chainPath, serv.getNewSocket());
         if (result) std::cout << "Server Chain Certificate sent!" << std::endl;
 
+        close(serv.getNewSocket());
 
         return CertificateHandler::checkCertificateChain(Poco::Crypto::X509Certificate::readPEM(receivedChainPath), *mSelfSignedCertificate);
     }

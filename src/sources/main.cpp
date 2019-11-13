@@ -101,8 +101,18 @@ int main(int argc, char* argv[])
     std::vector<std::string> options;
     size_t size;
 
+    if(argc < 2 )
+    {
+        show_usage("homenetctl");
+        return 0;
+    }
+
+    Equipment eq = Equipment(argv[1],8888);
+    eq.saveEquipment();
+
     while(true) {
 
+        std::cout << "type in your next command " << std::endl;
         getline(std::cin,command);
 
         std::stringstream ss(command);
@@ -120,8 +130,9 @@ int main(int argc, char* argv[])
                     name = vstrings[i+1];
                     port = std::stoi(vstrings[i+2]);
 
-                    Equipment A(name, port);
-                    A.addEquipmentServerSide();
+                    eq = Equipment(name,port);
+                    eq.addEquipmentServerSide();
+                    eq.saveEquipment();
 
                 } else {
                     std::cerr << "--add option requires two arguments." << std::endl;
@@ -135,12 +146,9 @@ int main(int argc, char* argv[])
                     addr = vstrings[i + 2].c_str();
                     port = std::stoi(vstrings[i+3]);
 
-                    std::cout << vstrings[i] << std::endl;
-                    std::cout << vstrings[i+1] << std::endl;
-                    std::cout << vstrings[i+2] << std::endl;
-
-                    Equipment B(name, port);
-                    B.addEquipmentClientSide(addr);
+                    eq = Equipment(name,port);
+                    eq.addEquipmentClientSide(addr);
+                    eq.saveEquipment();
 
                 } else {
                     std::cerr << "--join option requires three arguments." << std::endl;
@@ -164,11 +172,43 @@ int main(int argc, char* argv[])
                     name = vstrings[i];
                     //Load equipment with said name
                     //display it using eq.display();
+                    eq.saveEquipment();
+                    eq.display();
+
                 } else {
                     std::cerr << "--display option requires one argument." << std::endl;
                     return 1;
                 }
 
+                //Request syncro
+            } else if ((arg == "-S") || (arg == "--requestSynchro")) {
+
+                if (i + 3 < vstrings.size()) {
+                    name = vstrings[i+1];
+                    addr = vstrings[i + 2].c_str();
+                    port = std::stoi(vstrings[i+3]);
+
+                    //REQUEST SYNC FROM CLIENT
+
+
+                } else {
+                    std::cerr << "--sync option requires three arguments." << std::endl;
+                    return 1;
+                }
+
+            } else if ((arg == "-s") || (arg == "--sync")) {
+
+                if (i + 2 < vstrings.size()) {
+
+                    name = vstrings[i+1];
+                    port = std::stoi(vstrings[i+2]);
+                    
+                    //SYNC FROM SERVER
+
+                } else {
+                    std::cerr << "--sync option requires one argument." << std::endl;
+                    return 1;
+                }
 
 
             } else if ((arg == "-r") || (arg == "--reset")) {
@@ -183,6 +223,7 @@ int main(int argc, char* argv[])
                     sleep(1);
                 }
             } else if ((arg == "-q") || (arg == "--quit")) {
+                eq.saveEquipment();
                 return 0;
             }
         }

@@ -24,14 +24,8 @@ Equipment::Equipment(std::string id, int port)
 
     //Check that everything went well by checking the certificate's signature
     bool result = CertificateHandler::checkCertificate(*CertificateHandler::selfSign(mId, Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()), 30), *mSelfSignedCertificate);
-    if(!result)
-    {
-        std::cout << "error in the selfsigned certificate" << std::endl;
-        exit(EXIT_FAILURE);
-    } else {
-        AddInCA(mSelfSignedCertificate);
-    }
 
+    mHandler = std::make_unique<CertificateHandler>(Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()), mId);
 }
 
 /**
@@ -61,6 +55,7 @@ Poco::Crypto::X509Certificate Equipment::newCertificate(Poco::Crypto::X509Certif
 void Equipment::AddInCA(CertificateHandler::X509Ptr cert)
 {
     CA.push_back(*cert);
+    mHandler->addCertificate(cert);
 }
 
 void Equipment::writeCertificateToFile(Poco::Crypto::X509Certificate cert, std::string path)

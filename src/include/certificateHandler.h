@@ -24,6 +24,7 @@ public:
         std::vector<std::shared_ptr<certificate_node>> children;
         std::weak_ptr<certificate_node> parent;
         CertificateHandler::X509Ptr certificate;
+        bool isRoot;
     };
 
 private:
@@ -41,6 +42,11 @@ public:
     bool addCertificate(X509Ptr cert, Poco::Crypto::RSAKey signerPubKey);
     Poco::Crypto::X509Certificate::List findChainCert(X509Ptr cert);
 
+    bool addPubKey(std::string id, Poco::Crypto::RSAKey key);
+
+    void moveNodeToCA(X509Ptr cert);
+    /* void synchronisation(Poco::Crypto::X) */
+
     bool isStored(X509Ptr cert);
 
     static X509Ptr sign(std::string issuerName, EVP_PKEY *issuerKey, std::string clientName, EVP_PKEY *clientKey, int validityDays);
@@ -54,8 +60,12 @@ public:
     static std::string keyToString(Poco::Crypto::RSAKey key);
     static std::string getSignatureId(DevId id);
     static DevId getIdFromX509(Poco::Crypto::X509Certificate cert);
+
+    Poco::Crypto::X509Certificate::List getAllNodes();
     void save();
     void load();
+    static std::map<std::string,Poco::Crypto::RSAKey> readPubKeys(std::string path);
+
     X509Ptr getSelfSigned();
 };
 

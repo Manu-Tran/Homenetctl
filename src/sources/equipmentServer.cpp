@@ -80,9 +80,9 @@ void Equipment::addEquipmentServerSide()
 
 void Equipment::synchroServerSide(){
 
-    if (!authentificateServerSide()){
-        std::cout << "Authentification failed ! " << std::endl;
-    }
+    //if (!authentificateServerSide()){
+    //    std::cout << "Authentification failed ! " << std::endl;
+    //}
     bool result;
     std::string toSendPath = "/tmp/homenetctl/"+ mId+"/knownCerts.pem";
     std::string receivedPath = "/tmp/homenetctl/"+mId+"/knownCertsReceived.pem";
@@ -95,8 +95,8 @@ void Equipment::synchroServerSide(){
     result = serv.listenForConnectionRequests();
 
     //poput to accept connection between devices
-    if(result)
-        result = serv.serverAcceptAccess(serv.getNewSocket(),mId);
+    //if(result)
+    //    result = serv.serverAcceptAccess(serv.getNewSocket(),mId);
 
     if(result) {
         std::cout << "server connected & listening:" << std::endl;
@@ -107,18 +107,22 @@ void Equipment::synchroServerSide(){
         //Receive certificates from Client
         result = serv.receiveFile(receivedPath, serv.getNewSocket());
         if (result) std::cout << "DA and CA certificates received" << std::endl;
+        else std::cout << "failed" << std::endl;
 
         //send certificates to client
         result = serv.sendFile(toSendPath, serv.getNewSocket());
         if (result) std::cout << "DA and CA certificate sent" << std::endl;
+        else std::cout << "failed" << std::endl;
 
         //Receive pubkey from Client
         result = serv.receiveFile(receivedPubKeyPath, serv.getNewSocket());
         if (result) std::cout << "Pubkeys received" << std::endl;
+        else std::cout << "failed" << std::endl;
 
         //send pubkeys to client
         result = serv.sendFile(toSendPath, serv.getNewSocket());
         if (result) std::cout << "Pubkeys certificate sent" << std::endl;
+        else std::cout << "failed" << std::endl;
 
         //Loads the received cert
         Poco::Crypto::X509Certificate::List receivedList = Poco::Crypto::X509Certificate::readPEM(receivedPath);

@@ -18,6 +18,7 @@ class Equipment {
 private:
     std::string mId;
     RSAKeyPair mKeys;
+    std::unique_ptr<CertificateHandler> mHandler;
     int mPort;
 
     std::string pathCA;
@@ -45,6 +46,9 @@ public:
     //ADD New equipment
     void addEquipmentServerSide();
     void addEquipmentClientSide(const char * serverAddress);
+
+    void synchroServerSide();
+    void synchroClientSide(const char * serverAddress);
 
     //DISPLAY
     void display_DA();

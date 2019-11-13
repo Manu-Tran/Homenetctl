@@ -109,7 +109,6 @@ int main(int argc, char* argv[])
 
     init(argv[1]);
     Equipment eq = Equipment(argv[1],8888);
-    eq.saveEquipment();
 
     while(true) {
 
@@ -131,9 +130,9 @@ int main(int argc, char* argv[])
                     name = vstrings[i+1];
                     port = std::stoi(vstrings[i+2]);
 
-                    eq = Equipment(name,port);
+                    //eq = Equipment(name,port);
+                    eq.setPort(port);
                     eq.addEquipmentServerSide();
-                    eq.saveEquipment();
 
                 } else {
                     std::cerr << "--add option requires two arguments." << std::endl;
@@ -146,9 +145,9 @@ int main(int argc, char* argv[])
                     addr = vstrings[i + 2].c_str();
                     port = std::stoi(vstrings[i+3]);
 
-                    eq = Equipment(name,port);
+                    //eq = Equipment(name,port);
+                    eq.setPort(port);
                     eq.addEquipmentClientSide(addr);
-                    eq.saveEquipment();
 
                 } else {
                     std::cerr << "--join option requires three arguments." << std::endl;
@@ -170,7 +169,6 @@ int main(int argc, char* argv[])
                     name = vstrings[i];
                     //Load equipment with said name
                     //display it using eq.display();
-                    eq.saveEquipment();
                     eq.display();
 
                 } else {
@@ -186,9 +184,9 @@ int main(int argc, char* argv[])
                     port = std::stoi(vstrings[i+3]);
 
                     //REQUEST SYNC FROM CLIENT
-                    eq = Equipment(name,port);
+                    //eq = Equipment(name,port);
+                    eq.setPort(port);
                     eq.synchroClientSide(addr);
-                    eq.saveEquipment();
 
 
                 } else {
@@ -203,9 +201,9 @@ int main(int argc, char* argv[])
                     port = std::stoi(vstrings[i+2]);
 
                     //SYNC FROM SERVER
-                    eq = Equipment(name,port);
+                    //eq = Equipment(name,port);
+                    eq.setPort(port);
                     eq.synchroServerSide();
-                    eq.saveEquipment();
 
                 } else {
                     std::cerr << "--sync option requires one argument." << std::endl;
@@ -229,12 +227,6 @@ int main(int argc, char* argv[])
             }
         }
     }
-
-    if (test) {
-       std::cout << "Launching Tests :" << std::endl;
-       TestHandler::launchTests();
-    }
-    return 0;
 }
 
 void init(std::string name)
@@ -250,6 +242,4 @@ void init(std::string name)
         fs::create_directory(mPathEquipment);
 
     std::cout << "Directories were created" << std::endl;
-
-    //Create equipment + Save it
 }

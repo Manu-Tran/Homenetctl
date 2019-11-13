@@ -65,7 +65,7 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
             addInCA(newCert,Poco::Crypto::RSAKey(subjectSelfSignedCert));
             std::cout << "received cert OK" << std::endl;
 
-            synchroClientSide(serverAddress);
+            //synchroClientSide(serverAddress);
 
         }
         else
@@ -81,9 +81,9 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
 void Equipment::synchroClientSide(const char * serverAddress){
 
 
-    if (!authentificateClientSide(serverAddress)){
-        std::cout << "Authentification failed ! " << std::endl;
-    }
+    //if (!authentificateClientSide(serverAddress)){
+    //    std::cout << "Authentification failed ! " << std::endl;
+    //}
 
     bool result;
     std::string toSendPath = "/tmp/homenetctl/"+mId+"/knownCerts.pem";
@@ -138,6 +138,10 @@ void Equipment::synchroClientSide(const char * serverAddress){
                 CertificateHandler::X509Ptr x509 = std::make_shared<Poco::Crypto::X509Certificate>(*itr);
                 mHandler->addCertificate(x509, receivedPubList.at(itr->issuerName()));
             }
+            else
+            {
+                std::cout << "pubKey was not sent could not add" << std::endl;
+            }
         }
     }
 
@@ -159,7 +163,7 @@ bool Equipment::authentificateClientSide(const char * serverAddress){
     std::string selfSignedPath = "/tmp/homenetctl/"+mId+"/selfSigned.pem";
 
     //Create Client socket and connect to server using address and port
-    Client cl(serverAddress,mPort);
+    Client cl(serverAddress,mPort+1);
     std::cout << "client created" << std::endl;
     result = cl.connectToServer();
 

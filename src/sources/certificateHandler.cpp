@@ -97,10 +97,10 @@ bool CertificateHandler::addCertificate(X509Ptr cert, Poco::Crypto::RSAKey signe
         newNode->isRoot = false;
         parentNode->children.push_back(newNode);
 
+        mPubKeyIndex.emplace(std::make_pair(cert->issuerName(),signerKey));
         // Index the new node
         if (!mX509Searcher.contains(DevId(cert->subjectName(), CertificateHandler::getPublicKey(*cert)))){
             mX509Searcher[DevId(cert->subjectName(), CertificateHandler::getPublicKey(*cert))]=std::weak_ptr<certificate_node>(newNode);
-            mPubKeyIndex.emplace(std::make_pair(cert->issuerName(),signerKey));
             /* mPubKeyIndex.emplace(std::make_pair(cert->subjectName(),Poco::Crypto::RSAKey(*cert))); */
         }
         std::cout << "Signer" << cert->issuerName() << " Added !"  << std::endl;

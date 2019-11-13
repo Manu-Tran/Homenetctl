@@ -135,6 +135,8 @@ void Equipment::synchroClientSide(const char * serverAddress){
                 CertificateHandler::X509Ptr x509 = std::make_shared<Poco::Crypto::X509Certificate>(*itr);
                 mHandler->addCertificate(x509, receivedPubList.at(itr->issuerName()));
             }
+            else
+                std::cout << "Pubkey wasnt sent, could not add" << std::endl;
         }
     }
 

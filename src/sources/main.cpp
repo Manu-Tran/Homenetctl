@@ -103,10 +103,11 @@ int main(int argc, char* argv[])
 
     if(argc < 2 )
     {
-        show_usage("homenetctl");
+        show_usage(argv[0]);
         return 0;
     }
 
+    init(argv[1]);
     Equipment eq = Equipment(argv[1],8888);
     eq.saveEquipment();
 
@@ -136,7 +137,6 @@ int main(int argc, char* argv[])
 
                 } else {
                     std::cerr << "--add option requires two arguments." << std::endl;
-                    return 1;
                 }
 
             } else if ((arg == "--join" || arg == "-j")) {
@@ -152,7 +152,6 @@ int main(int argc, char* argv[])
 
                 } else {
                     std::cerr << "--join option requires three arguments." << std::endl;
-                    return 1;
                 }
 
             } else if ((arg == "-i") || (arg == "--init")) {
@@ -162,7 +161,6 @@ int main(int argc, char* argv[])
                     init(name);
                 } else {
                     std::cerr << "--init option requires one argument." << std::endl;
-                    return 1;
                 }
 
 
@@ -177,7 +175,6 @@ int main(int argc, char* argv[])
 
                 } else {
                     std::cerr << "--display option requires one argument." << std::endl;
-                    return 1;
                 }
 
                 //Request syncro
@@ -193,7 +190,6 @@ int main(int argc, char* argv[])
 
                 } else {
                     std::cerr << "--sync option requires three arguments." << std::endl;
-                    return 1;
                 }
 
             } else if ((arg == "-s") || (arg == "--sync")) {
@@ -202,12 +198,11 @@ int main(int argc, char* argv[])
 
                     name = vstrings[i+1];
                     port = std::stoi(vstrings[i+2]);
-                    
+
                     //SYNC FROM SERVER
 
                 } else {
                     std::cerr << "--sync option requires one argument." << std::endl;
-                    return 1;
                 }
 
 

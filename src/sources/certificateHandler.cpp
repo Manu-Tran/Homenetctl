@@ -83,10 +83,11 @@ bool CertificateHandler::addCertificate(X509Ptr cert){
 bool CertificateHandler::addCertificate(X509Ptr cert, Poco::Crypto::RSAKey signerKey){
 
     DevId issuer = DevId(cert->issuerName(), CertificateHandler::keyToString(signerKey));
+    DevId subject = DevId(cert->subjectName(), CertificateHandler::keyToString(Poco::Crypto::RSAKey(*cert)));
 
     // If the issuer is indexed
-    if (mX509Searcher.contains(issuer)){
-        std::shared_ptr<certificate_node> parentNode = mX509Searcher.at(issuer).lock();
+    if (mX509Searcher.contains(subject)){
+        std::shared_ptr<certificate_node> parentNode = mX509Searcher.at(subject).lock();
 
         // Creation of the child node
         std::shared_ptr<certificate_node> newNode=std::make_shared<certificate_node>();

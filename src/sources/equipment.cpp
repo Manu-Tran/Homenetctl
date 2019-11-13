@@ -53,10 +53,10 @@ Poco::Crypto::X509Certificate Equipment::newCertificate(Poco::Crypto::X509Certif
  * @param pubkey
  * @param cert
  */
-void Equipment::addInCA(Poco::Crypto::X509Certificate cert)
+void Equipment::addInCA(Poco::Crypto::X509Certificate cert, Poco::Crypto::RSAKey signerKey)
 {
     CA.push_back(cert);
-    mHandler->addCertificate(std::make_shared<Poco::Crypto::X509Certificate>(cert));
+    mHandler->addCertificate(std::make_shared<Poco::Crypto::X509Certificate>(cert),signerKey);
 }
 void Equipment::addInDA(Poco::Crypto::X509Certificate cert)
 {

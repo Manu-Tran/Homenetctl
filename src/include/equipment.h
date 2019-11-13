@@ -38,7 +38,7 @@ public:
     Poco::Crypto::X509Certificate newCertificate(Poco::Crypto::X509Certificate cert, std::string clientName);
 
     //SAVE & LOAD
-    void addInCA(Poco::Crypto::X509Certificate cert);
+    void addInCA(Poco::Crypto::X509Certificate cert, Poco::Crypto::RSAKey signerKey);
     void addInDA(Poco::Crypto::X509Certificate cert);
     void writeCertificateToFile(Poco::Crypto::X509Certificate cert, std::string path);
     Poco::Crypto::X509Certificate readCertificateFromFile(std::string path);

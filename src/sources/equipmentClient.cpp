@@ -61,8 +61,8 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
         newCert = readCertificateFromFile(newCertPath);
 
         if (CertificateHandler::checkCertificate(newCert, subjectSelfSignedCert)) {
-            //add it to CA
-            CA.push_back(newCert);
+
+            addInCA(newCert,Poco::Crypto::RSAKey(subjectSelfSignedCert));
             std::cout << "received cert OK" << std::endl;
         }
         else

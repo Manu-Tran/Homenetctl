@@ -81,5 +81,4 @@ void Equipment::display_certificate(const Poco::Crypto::X509Certificate& certif)
     std::cout << std::endl;
 
     remove(certPath.c_str());
-    remove(keyPath.c_str());
 }

@@ -312,6 +312,7 @@ Poco::Crypto::X509Certificate::List CertificateHandler::getAllNodes(){
     std::deque<std::shared_ptr<certificate_node>> currentDepth;
     std::deque<std::shared_ptr<certificate_node>> nextDepth;
 
+    certificateList.push_back(*mSelfSignedCert->certificate) ;
     for (auto node : mSelfSignedCert->children){
         currentDepth.push_back(node);
     }

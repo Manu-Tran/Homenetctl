@@ -108,13 +108,13 @@ void Equipment::synchroServerSide(){
         result = serv.receiveFile(receivedPath, serv.getNewSocket());
         if (result) std::cout << "DA and CA certificates received" << std::endl;
 
-        //Receive pubkey from Client
-        result = serv.receiveFile(receivedPubKeyPath, serv.getNewSocket());
-        if (result) std::cout << "Pubkeys received" << std::endl;
-
         //send certificates to client
         result = serv.sendFile(toSendPath, serv.getNewSocket());
         if (result) std::cout << "DA and CA certificate sent" << std::endl;
+
+        //Receive pubkey from Client
+        result = serv.receiveFile(receivedPubKeyPath, serv.getNewSocket());
+        if (result) std::cout << "Pubkeys received" << std::endl;
 
         //send pubkeys to client
         result = serv.sendFile(toSendPath, serv.getNewSocket());

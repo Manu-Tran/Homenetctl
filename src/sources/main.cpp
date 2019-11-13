@@ -186,6 +186,9 @@ int main(int argc, char* argv[])
                     port = std::stoi(vstrings[i+3]);
 
                     //REQUEST SYNC FROM CLIENT
+                    eq = Equipment(name,port);
+                    eq.synchroClientSide(addr);
+                    eq.saveEquipment();
 
 
                 } else {
@@ -200,6 +203,9 @@ int main(int argc, char* argv[])
                     port = std::stoi(vstrings[i+2]);
 
                     //SYNC FROM SERVER
+                    eq = Equipment(name,port);
+                    eq.synchroServerSide();
+                    eq.saveEquipment();
 
                 } else {
                     std::cerr << "--sync option requires one argument." << std::endl;

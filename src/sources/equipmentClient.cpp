@@ -104,13 +104,13 @@ void Equipment::synchroClientSide(const char * serverAddress){
         result = cl.sendFile(toSendPath, cl.getSocket());
         if (result) std::cout << "DA and CA certificate sent" << std::endl;
 
-        //send pubkeys to client
-        result = cl.sendFile(toSendPath, cl.getSocket());
-        if (result) std::cout << "Pubkeys certificate sent" << std::endl;
-
         //Receive certificates from Client
         result = cl.receiveFile(receivedPath, cl.getSocket());
         if (result) std::cout << "DA and CA certificates received" << std::endl;
+
+        //send pubkeys to client
+        result = cl.sendFile(toSendPath, cl.getSocket());
+        if (result) std::cout << "Pubkeys certificate sent" << std::endl;
 
         //Receive pubkey from Client
         result = cl.receiveFile(receivedPubKeyPath, cl.getSocket());

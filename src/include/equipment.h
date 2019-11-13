@@ -53,6 +53,9 @@ public:
     void synchroServerSide();
     void synchroClientSide(const char * serverAddress);
 
+    bool authentificateServerSide();
+    bool authentificateClientSide(const char * serverAddress);
+
     //DISPLAY
     static void display_certificate(const Poco::Crypto::X509Certificate& certif);
     void display_DA();

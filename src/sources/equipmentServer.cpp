@@ -80,6 +80,9 @@ void Equipment::addEquipmentServerSide()
 
 void Equipment::synchroServerSide(){
 
+    if (!authentificateServerSide()){
+        std::cout << "Authentification failed ! " << std::endl;
+    }
     bool result;
     std::string toSendPath = "/tmp/homenetctl/"+ mId+"/knownCerts.pem";
     std::string receivedPath = "/tmp/homenetctl/"+mId+"/knownCertsReceived.pem";
@@ -136,4 +139,49 @@ void Equipment::synchroServerSide(){
     //Delete Temp files
     remove( receivedPath.c_str() );
     remove( receivedPubKeyPath.c_str() );
+}
+
+
+bool Equipment::authentificateServerSide(){
+
+    bool result;
+
+    std::string chainPath = "/tmp/homenetctl/"+mId+"/chain.pem";
+    std::string receivedChainPath = "/tmp/homenetctl/"+mId+"/receivedChain.pem";
+    std::string receivedSelfSignedPath = "/tmp/homenetctl/"+mId+"/receivedSelfSigned.pem";
+    std::string selfSignedPath = "/tmp/homenetctl/"+mId+"/selfSigned.pem";
+
+    //Create Server socket, bind it, listen and accept connections
+    Server serv(mPort);
+    std::cout << "server created and listening to port: " << mPort << std::endl;
+    result = serv.listenForConnectionRequests();
+
+    if(result) {
+        std::cout << "server connected and listening" << std::endl;
+
+        //write selfsigned certificate to temp file --> writeCertificateToFile()
+        this->writeCertificateToFile(*mSelfSignedCertificate, selfSignedPath);
+
+        //Receive new certificate from server INTO TEMP FILE
+        result = serv.receiveFile(receivedSelfSignedPath, serv.getNewSocket());
+        if (result) std::cout << "Client self signed certificate received!" << std::endl;
+
+        //Receive new certificate from server INTO TEMP FILE
+        result = serv.receiveFile(receivedChainPath, serv.getNewSocket());
+        if (result) std::cout << "Client chain certificate received!" << std::endl;
+
+        //Send temp file to server
+        result = serv.sendFile(selfSignedPath, serv.getNewSocket());
+        if (result) std::cout << "Server Self Signed Certificate sent!" << std::endl;
+
+        CertificateHandler::X509Ptr subjectSelfSignedCert = std::make_shared<Poco::Crypto::X509Certificate>(readCertificateFromFile(receivedSelfSignedPath));
+        Poco::Crypto::X509Certificate::writePEM(chainPath ,this->mHandler->findChainCert(subjectSelfSignedCert));
+
+        //Send chain file to server
+        result = serv.sendFile(chainPath, serv.getNewSocket());
+        if (result) std::cout << "Server Chain Certificate sent!" << std::endl;
+
+
+        return CertificateHandler::checkCertificateChain(Poco::Crypto::X509Certificate::readPEM(receivedChainPath), *mSelfSignedCertificate);
+    }
 }

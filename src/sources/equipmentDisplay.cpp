@@ -13,6 +13,7 @@ void Equipment::display_CA()
 {
     std::cout << "========================================" << std::endl;
     std::cout << "Here is the CA of equipment " << this->mId << std::endl;
+    display_certificate(*mSelfSignedCertificate);
     for(const auto& cert : this->mHandler->getCA())
         Equipment::display_certificate(cert);
     std::cout << "========================================" << std::endl;
@@ -58,10 +59,6 @@ void Equipment::display_certificate(const Poco::Crypto::X509Certificate& certif)
     while (std::getline(file, line))
         cert_content += line + "\n";
 
-    //write key to temp file
-    RSAKeyPair pubKey(certif.commonName(), certif);
-    keyPath = pubKey.getPublicKeyPath();
-
     //get the public key string back from the file
     std::ifstream keyFile(keyPath);
     while (std::getline(keyFile, line))
@@ -76,7 +73,7 @@ void Equipment::display_certificate(const Poco::Crypto::X509Certificate& certif)
     std::cout << "----------------------------------------" << std::endl;
     std::cout << "CERTIFICATE DETAILS:" << std::endl;
     std::cout << cert_content << std::endl;
-    std::cout << public_key << std::endl;
+    std::cout << CertificateHandler::getPublicKey(*mSelfSignedCertificate) << std::endl;
     std::cout << "========================================" << std::endl;
     std::cout << std::endl;
 

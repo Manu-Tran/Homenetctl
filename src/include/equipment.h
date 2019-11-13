@@ -44,7 +44,7 @@ public:
     Poco::Crypto::X509Certificate readCertificateFromFile(std::string path);
 
     void saveEquipment();
-    Equipment(std::string id);
+    void loadEquipment();
 
     //ADD New equipment
     void addEquipmentServerSide();
@@ -57,7 +57,7 @@ public:
     bool authentificateClientSide(const char * serverAddress);
 
     //DISPLAY
-    static void display_certificate(const Poco::Crypto::X509Certificate& certif);
+    void display_certificate(const Poco::Crypto::X509Certificate& certif);
     void display_DA();
     void display_CA();
     void display(); //calls on the previous 2

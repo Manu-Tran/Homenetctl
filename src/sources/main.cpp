@@ -17,6 +17,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <syslog.h>
+#include <iterator>
 
 namespace fs = std::filesystem;
 
@@ -91,95 +92,139 @@ static void show_usage(std::string name)
 
 int main(int argc, char* argv[])
 {
-    if (argc < 2) {
-        show_usage(argv[0]);
-        return 1;
-    }
     std::vector <std::string> sources;
     int port;
     const char * addr;
     bool test=false;
     std::string name;
+    std::string command;
+    std::vector<std::string> options;
+    size_t size;
 
-    for (int i = 1; i < argc; ++i) {
-        std::string arg = argv[i];
+    if(argc < 2 )
+    {
+        show_usage("homenetctl");
+        return 0;
+    }
 
-        if ((arg == "-h") || (arg == "--help")) {
-            show_usage(argv[0]);
-            return 0;
-        } else if ((arg == "-a") || (arg == "--add")) {
-            if (i + 2 < argc) {
-                name = argv[i + 1];
-                port = std::stoi(argv[i+2]);
+    Equipment eq = Equipment(argv[1],8888);
+    eq.saveEquipment();
 
-                Equipment A(name,port);
-                A.addEquipmentServerSide();
+    while(true) {
 
+        std::cout << "type in your next command " << std::endl;
+        getline(std::cin,command);
+
+        std::stringstream ss(command);
+        std::istream_iterator<std::string> begin(ss);
+        std::istream_iterator<std::string> end;
+        std::vector<std::string> vstrings(begin, end);
+
+        for (size_t i = 0; i < vstrings.size(); ++i) {
+            std::string arg = vstrings[i];
+            if ((arg == "-h") || (arg == "--help")) {
+                show_usage(vstrings[0]);
                 return 0;
+            } else if ((arg == "-a") || (arg == "--add")) {
+                if (i + 2 < vstrings.size()) {
+                    name = vstrings[i+1];
+                    port = std::stoi(vstrings[i+2]);
 
-            } else {
-                std::cerr << "--add option requires two arguments." << std::endl;
-                return 1;
-            }
+                    eq = Equipment(name,port);
+                    eq.addEquipmentServerSide();
+                    eq.saveEquipment();
 
-        } else if ((arg == "--join" || arg == "-j")) {
+                } else {
+                    std::cerr << "--add option requires two arguments." << std::endl;
+                    return 1;
+                }
 
-            if (i + 3 < argc) {
-                name = argv[i + 1];
-                addr = argv[i + 2];
-                port = std::stoi(argv[i + 3]);
+            } else if ((arg == "--join" || arg == "-j")) {
 
-                Equipment B(name, port);
-                B.addEquipmentClientSide(addr);
+                if (i + 3 < vstrings.size()) {
+                    name = vstrings[i+1];
+                    addr = vstrings[i + 2].c_str();
+                    port = std::stoi(vstrings[i+3]);
 
-            } else {
-                std::cerr << "--join option requires three arguments." << std::endl;
-                return 1;
-            }
+                    eq = Equipment(name,port);
+                    eq.addEquipmentClientSide(addr);
+                    eq.saveEquipment();
 
-            return 0;
-        } else if((arg == "-i") || (arg == "--init")) {
+                } else {
+                    std::cerr << "--join option requires three arguments." << std::endl;
+                    return 1;
+                }
 
-            if(i+1 < argc)
-            {
-                name = argv[i+1];
-                init(name);
-            }
-            else
-            {
-                std::cerr << "--init option requires one argument." << std::endl;
-                return 1;
-            }
+            } else if ((arg == "-i") || (arg == "--init")) {
 
-            return 0;
-
-        } else if((arg == "-d") || (arg == "--display")) {
-
-            if(i+1 < argc)
-            {
-                name = argv[i+1];
-                //Load equipment with said name
-                //display it using eq.display();
-            }
-            else
-            {
-                std::cerr << "--display option requires one argument." << std::endl;
-                return 1;
-            }
-
-            return 0;
+                if (i + 1 < vstrings.size()) {
+                    name = vstrings[i+1];
+                    init(name);
+                } else {
+                    std::cerr << "--init option requires one argument." << std::endl;
+                    return 1;
+                }
 
 
-        } else if ((arg == "-r") || (arg == "--reset")) {
-            show_usage(argv[0]);
-            return 0;
-        } else if ((arg == "--test")) {
-            test = true;
-        } else if ((arg == "-b") || (arg == "--background")){
-            daemonStart();
-            while (1){
-                syslog(LOG_NOTICE, "First daemon started.");
-                sleep(1);
+            } else if ((arg == "-d") || (arg == "--display")) {
+
+                if (i + 1 < vstrings.size()) {
+                    name = vstrings[i];
+                    //Load equipment with said name
+                    //display it using eq.display();
+                    eq.saveEquipment();
+                    eq.display();
+
+                } else {
+                    std::cerr << "--display option requires one argument." << std::endl;
+                    return 1;
+                }
+
+                //Request syncro
+            } else if ((arg == "-S") || (arg == "--requestSynchro")) {
+
+                if (i + 3 < vstrings.size()) {
+                    name = vstrings[i+1];
+                    addr = vstrings[i + 2].c_str();
+                    port = std::stoi(vstrings[i+3]);
+
+                    //REQUEST SYNC FROM CLIENT
+
+
+                } else {
+                    std::cerr << "--sync option requires three arguments." << std::endl;
+                    return 1;
+                }
+
+            } else if ((arg == "-s") || (arg == "--sync")) {
+
+                if (i + 2 < vstrings.size()) {
+
+                    name = vstrings[i+1];
+                    port = std::stoi(vstrings[i+2]);
+                    
+                    //SYNC FROM SERVER
+
+                } else {
+                    std::cerr << "--sync option requires one argument." << std::endl;
+                    return 1;
+                }
+
+
+            } else if ((arg == "-r") || (arg == "--reset")) {
+                show_usage(vstrings[0]);
+                return 0;
+            } else if ((arg == "--test")) {
+                test = true;
+            } else if ((arg == "-b") || (arg == "--background")) {
+                daemonStart();
+                while (1) {
+                    syslog(LOG_NOTICE, "First daemon started.");
+                    sleep(1);
+                }
+            } else if ((arg == "-q") || (arg == "--quit")) {
+                eq.saveEquipment();
+                return 0;
             }
         }
     }

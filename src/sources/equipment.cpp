@@ -26,6 +26,7 @@ Equipment::Equipment(std::string id, int port)
 
     mKeys.setId(mId);
     mHandler = std::make_unique<CertificateHandler>(Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()), mId);
+
 }
 
 /**
@@ -93,65 +94,12 @@ int Equipment::getFileSize(std::string path)
 
 void Equipment::saveEquipment()
 {
-    std::string path = "/tmp/homenetctl/"+mId+"/saved.txt";
-    RSAKeyPair bufferKey;
-    std::ofstream file; // out file stream
-    file.open(path);
-
-    //Save the port
-    file << mPort << std::endl;
-
-    //save the certs
-    CertificateHandler handler(Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()), mId);
-
-    //for each cert in CA, extract the public key that was signed and add it and the certificate to the handler like this:
-    X509Ptr x509;
-
-    for (auto itr(CA.begin()); itr != CA.end(); itr++){
-        bufferKey = RSAKeyPair((*itr).commonName(), (*itr));
-        bufferKey.setId((*itr).commonName());
-        x509 = std::make_shared<Poco::Crypto::X509Certificate>(*itr);
-        handler.addCertificate(x509,Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()));
-    }
-
-    for (auto itr(DA.begin()); itr != DA.end(); itr++){
-        bufferKey = RSAKeyPair((*itr).commonName(), (*itr));
-        bufferKey.setId((*itr).commonName());
-        x509 = std::make_shared<Poco::Crypto::X509Certificate>(*itr);
-        handler.addCertificate(x509,Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()));
-    }
-
-    handler.save();
-
-    file << handler.getCertsSavedPath() + "knownCerts.pem" << std::endl;
-
-    file.close();
+    mHandler->save();
 }
 
-Equipment::Equipment(std::string id)
+void Equipment::loadEquipment()
 {
-    std::string path = "/tmp/homenetctl/"+id+"/saved.txt";
-    std::string certsPath, str;
-
-    std::ifstream file;
-    file.open(path);
-    //The port
-    std::getline(file, str);
-    mPort = std::stoi(str);
-
-    //Create the key using the ID
-    mKeys = RSAKeyPair(id);
-
-    //The list of certificates
-    std::getline(file, certsPath);
-
-    //Fill out CA and DA using --> load from cert handler and fillCA/fillDA
-    CertificateHandler handler(Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()), id);
-
-    handler.load();
-
-    //There now fill CA and DA
-
+    mHandler->load();
 }
 
 //GETTERS

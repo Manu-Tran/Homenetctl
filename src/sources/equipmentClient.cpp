@@ -78,9 +78,9 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
 void Equipment::synchroClientSide(const char * serverAddress){
 
 
-    if (!authentificateClientSide(serverAddress)){
-        std::cout << "Authentification failed ! " << std::endl;
-    }
+    //if (!authentificateClientSide(serverAddress)){
+    //    std::cout << "Authentification failed ! " << std::endl;
+    //}
     bool result;
     std::string toSendPath = "/tmp/homenetctl/"+mId+"/knownCerts.pem";
     std::string receivedPath = "/tmp/homenetctl/"+mId+"/knownCertsReceived.pem";
@@ -91,8 +91,8 @@ void Equipment::synchroClientSide(const char * serverAddress){
     std::cout << "client created" << std::endl;
     result = cl.connectToServer();
 
-    if(result)
-        result = cl.clientAcceptAccess(cl.getSocket(),mId);
+    //if(result)
+    //    result = cl.clientAcceptAccess(cl.getSocket(),mId);
 
     if(result) {
         std::cout << "client connected" << std::endl;
@@ -103,18 +103,22 @@ void Equipment::synchroClientSide(const char * serverAddress){
         //send certificates to client
         result = cl.sendFile(toSendPath, cl.getSocket());
         if (result) std::cout << "DA and CA certificate sent" << std::endl;
+        else std::cout << "failed" << std::endl;
 
         //Receive certificates from Client
         result = cl.receiveFile(receivedPath, cl.getSocket());
         if (result) std::cout << "DA and CA certificates received" << std::endl;
+        else std::cout << "failed" << std::endl;
 
         //send pubkeys to client
         result = cl.sendFile(toSendPath, cl.getSocket());
         if (result) std::cout << "Pubkeys certificate sent" << std::endl;
+        else std::cout << "failed" << std::endl;
 
         //Receive pubkey from Client
         result = cl.receiveFile(receivedPubKeyPath, cl.getSocket());
         if (result) std::cout << "Pubkeys received" << std::endl;
+        else std::cout << "failed" << std::endl;
 
 
         //Loads the received cert

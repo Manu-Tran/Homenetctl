@@ -24,6 +24,7 @@ Equipment::Equipment(std::string id, int port)
     //Check that everything went well by checking the certificate's signature
     bool result = CertificateHandler::checkCertificate(*CertificateHandler::selfSign(mId, Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()), 30), *mSelfSignedCertificate);
 
+    mKeys.setId(mId);
     mHandler = std::make_unique<CertificateHandler>(Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()), mId);
 }
 
@@ -38,7 +39,6 @@ Poco::Crypto::X509Certificate Equipment::newCertificate(Poco::Crypto::X509Certif
     //get key from certificate
     RSAKeyPair clientKey(clientName, cert);
 
-    mKeys.setId(mId);
     clientKey.setId(clientName);
     //create a new one and sign it using my key
     auto cert1 = CertificateHandler::sign(mId,Poco::Crypto::EVPPKey(mKeys.loadKeys(true).get()),clientName,Poco::Crypto::EVPPKey(clientKey.loadKeys(false).get()),20);
@@ -55,8 +55,8 @@ Poco::Crypto::X509Certificate Equipment::newCertificate(Poco::Crypto::X509Certif
  */
 void Equipment::addInCA(Poco::Crypto::X509Certificate cert)
 {
-    CA.push_back(*cert);
-    mHandler->addCertificate(cert);
+    CA.push_back(cert);
+    mHandler->addCertificate(std::make_shared<Poco::Crypto::X509Certificate>(cert));
 }
 void Equipment::addInDA(Poco::Crypto::X509Certificate cert)
 {

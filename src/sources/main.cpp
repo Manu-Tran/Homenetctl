@@ -10,46 +10,82 @@
 #include <Poco/Crypto/EVPPKey.h>
 #include <Client.h>
 #include <Server.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <syslog.h>
 
 namespace fs = std::filesystem;
 
 void init(std::string name);
 
-/* Generates a 2048-bit RSA key. */
-EVP_PKEY * generate_key()
-{
-    /* Allocate memory for the EVP_PKEY structure. */
-    EVP_PKEY * pkey = EVP_PKEY_new();
-    if(!pkey)
+static void daemonStart(){
+    pid_t pid;
+
+    /* Fork off the parent process */
+    pid = fork();
+
+    /* An error occurred */
+    if (pid < 0)
+        exit(EXIT_FAILURE);
+
+    /* Success: Let the parent terminate */
+    if (pid > 0)
+        exit(EXIT_SUCCESS);
+
+    /* On success: The child process becomes session leader */
+    if (setsid() < 0)
+        exit(EXIT_FAILURE);
+
+    /* Catch, ignore and handle signals */
+    //TODO: Implement a working signal handler */
+    signal(SIGCHLD, SIG_IGN);
+    signal(SIGHUP, SIG_IGN);
+
+    /* Fork off for the second time*/
+    pid = fork();
+
+    /* An error occurred */
+    if (pid < 0)
+        exit(EXIT_FAILURE);
+
+    /* Success: Let the parent terminate */
+    if (pid > 0)
+        exit(EXIT_SUCCESS);
+
+    /* Set new file permissions */
+    umask(0);
+
+    /* Change the working directory to the root directory */
+    /* or another appropriated directory */
+    chdir("/");
+
+    /* Close all open file descriptors */
+    int x;
+    for (x = sysconf(_SC_OPEN_MAX); x>=0; x--)
     {
-        std::cerr << "Unable to create EVP_PKEY structure." << std::endl;
-        return NULL;
+        close (x);
     }
 
-    /* Generate the RSA key and assign it to pkey. */
-    RSA * rsa = RSA_generate_key(2048, RSA_F4, NULL, NULL);
-    if(!EVP_PKEY_assign_RSA(pkey, rsa))
-    {
-        std::cerr << "Unable to generate 2048-bit RSA key." << std::endl;
-        EVP_PKEY_free(pkey);
-        return NULL;
-    }
-
-    /* The key has been generated, return it. */
-    return pkey;
+    /* Open the log file */
+    openlog ("firstdaemon", LOG_PID, LOG_DAEMON);
 }
 
 static void show_usage(std::string name)
 {
     std::cerr << "Usage: " << name << " <option(s)> \n"
               << "Options:\n"
-              << "\t-h,--help\t\tShow this help message\n"
-              << "\t-i <Equipment Name>, --init <Equipment Name>\t\t Sets up your environment\n"
-              << "\t-r,--reset\t\tReset the configuration\n"
-              << "\t-a <Equipment Name> <PORT> ,--add <Equipment Name> <PORT> \t\t add a new equipment to my lists\n"
-              << "\t-j <Equipment Name> <SERVER IP> <PORT>,--client <Equipment Name> <SERVER IP> <PORT>\t\t ask to join a domestic network\n"
-              << "\t-d <Equipment Name>, --display <Equipment Name>\t\t display the current known devices to this equipment\n"
-              << "\t--test\t\tLaunch tests"
+              << "\t-h,--help                     \t Show this help message\n"
+              << "\t-i,--init <Name>              \t Sets up your environment\n"
+              << "\t-r,--reset                    \t Reset the configuration\n"
+              << "\t-a,--add <Name> <PORT>        \t Add a new equipment to my lists\n"
+              << "\t-j,--client <Name> <IP> <PORT>\t Ask to join a domestic network\n"
+              << "\t-d,--display <Name>           \t Display the current known devices to this equipment\n"
+              << "\t-b,--background <Name> <PORT> \t Daemonize the process\n"
+              << "\t-t,--test                     \t Launch tests"
               << std::endl;
 }
 
@@ -139,6 +175,12 @@ int main(int argc, char* argv[])
             return 0;
         } else if ((arg == "--test")) {
             test = true;
+        } else if ((arg == "-b") || (arg == "--background")){
+            daemonStart();
+            while (1){
+                syslog(LOG_NOTICE, "First daemon started.");
+                sleep(1);
+            }
         }
     }
 

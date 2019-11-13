@@ -78,10 +78,10 @@ void Equipment::addEquipmentClientSide(const char * serverAddress)
 void Equipment::synchroClientSide(const char * serverAddress){
 
     bool result;
-    std::string toSendPath = "/tmp/homenetctl/certs/client/knownCerts.pem";
-    std::string receivedPath = "/tmp/homenetctl/certs/client/knownCertsReceived.pem";
-    std::string toSendPubKeyPath = "/tmp/homenetctl/certs/client/knownHosts";
-    std::string receivedPubKeyPath = "/tmp/homenetctl/certs/client/knownHostsReceived";
+    std::string toSendPath = "/tmp/homenetctl/"+mId+"/knownCerts.pem";
+    std::string receivedPath = "/tmp/homenetctl/"+mId+"/knownCertsReceived.pem";
+    std::string toSendPubKeyPath = "/tmp/homenetctl/"+mId+"/knownHosts";
+    std::string receivedPubKeyPath = "/tmp/homenetctl/"+mId+"/knownHostsReceived";
 
     Client cl(serverAddress,mPort);
     std::cout << "client created" << std::endl;
@@ -115,7 +115,7 @@ void Equipment::synchroClientSide(const char * serverAddress){
 
         //Loads the received cert
         Poco::Crypto::X509Certificate::List receivedList = Poco::Crypto::X509Certificate::readPEM(receivedPath);
-        std::map<std::string,Poco::Crypto::RSAKey> receivedPubList = CertificateHandler::readPubKeys("/tmp/homenetctl/certs/server/knownHosts");
+        std::map<std::string,Poco::Crypto::RSAKey> receivedPubList = CertificateHandler::readPubKeys(receivedPubKeyPath);
         std::set<std::string> idPresent;
         for (auto pair : receivedPubList) {
             idPresent.insert(pair.first);

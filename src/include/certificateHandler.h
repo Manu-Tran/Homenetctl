@@ -47,6 +47,8 @@ public:
     void moveNodeToCA(X509Ptr cert);
     /* void synchronisation(Poco::Crypto::X) */
 
+    std::vector<Poco::Crypto::X509Certificate> getCA();
+
     bool isStored(X509Ptr cert);
 
     static X509Ptr sign(std::string issuerName, EVP_PKEY *issuerKey, std::string clientName, EVP_PKEY *clientKey, int validityDays);

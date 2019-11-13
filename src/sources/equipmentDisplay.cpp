@@ -13,7 +13,7 @@ void Equipment::display_CA()
 {
     std::cout << "========================================" << std::endl;
     std::cout << "Here is the CA of equipment " << this->mId << std::endl;
-    for(const auto& cert : this->CA)
+    for(const auto& cert : this->mHandler->getCA())
         Equipment::display_certificate(cert);
     std::cout << "========================================" << std::endl;
 }
@@ -24,7 +24,7 @@ void Equipment::display_DA()
 {
     std::cout << "========================================" << std::endl;
     std::cout << "Here is the DA of equipment " << this->mId << std::endl;
-    for(const auto& cert : this->DA)
+    for(const auto& cert : this->mHandler->getAllNodes())
         Equipment::display_certificate(cert);
     std::cout << "========================================" << std::endl;
 }

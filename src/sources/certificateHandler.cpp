@@ -412,6 +412,14 @@ std::string CertificateHandler::getCertsSavedPath()
     return mCertDir;
 }
 
+std::vector<Poco::Crypto::X509Certificate> CertificateHandler::getCA(){
+    std::vector<Poco::Crypto::X509Certificate> res;
+    for (auto child : mSelfSignedCert->children){
+        res.push_back(*child->certificate);
+    }
+    return res;
+}
+
 /* bool CertificateHandler::save(){ */
 /*     bool status = false; */
 /*     std::deque<std::shared_ptr<certificate_node>> currentDepth; */
